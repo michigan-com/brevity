@@ -2,9 +2,10 @@ from invoke import task
 import requests
 
 from app import create_app
-from db import db, SummaryReview
+from db import mongo
 
 app = create_app()
+app.test_request_context().push()
 
 @task
 def run(host='0.0.0.0', port=3000):
@@ -24,7 +25,9 @@ def fetch_articles():
     num_invalid_body = 0
     for article in return_data[ 'articles' ]:
         article_id = article['article_id']
-        summary = SummaryReview.query.filter(SummaryReview.article_id==article_id).first()
+        summary = mongo.db.SummaryReview.find_one({
+            'article_id': article_id
+        })
 
         if not article['body']:
             print("Article {} does not have a body, skipping".format(article_id))
@@ -32,8 +35,9 @@ def fetch_articles():
             continue
 
         if summary is None:
-            summary = SummaryReview(article_id=article_id)
-            summary.save()
+            summary = mongo.db.SummaryReview.insert({
+                'article_id': article_id
+            })
             num_added += 1
         else:
             num_repeats += 1

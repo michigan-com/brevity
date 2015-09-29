@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template, request, jsonify, Blueprint
-from db import db_connect, db
+from db import db_connect, mongo
 from summarize import process_article_summaries
 
 reviewers = [{
@@ -43,7 +43,7 @@ def create_app():
 
     @app.route('/newsfetch-summarize/')
     def process_newsfetch_articles():
-        results = process_article_summaries(db)
+        results = process_article_summaries(mongo.db)
 
         return jsonify({
             'success': True
