@@ -25,6 +25,7 @@ def fetch_articles():
     num_invalid_body = 0
     for article in return_data[ 'articles' ]:
         article_id = article['article_id']
+        article_headline = article['headline']
         summary = mongo.db.SummaryReview.find_one({
             'article_id': article_id
         })
@@ -36,7 +37,8 @@ def fetch_articles():
 
         if summary is None:
             summary = mongo.db.SummaryReview.insert({
-                'article_id': article_id
+                'article_id': article_id,
+                'headline': article_headline
             })
             num_added += 1
         else:

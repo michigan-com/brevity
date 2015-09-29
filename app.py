@@ -1,22 +1,11 @@
 import os
 
 from flask import Flask, render_template, request, jsonify, Blueprint
+from bson.json_util import dumps
+
 from db import db_connect, mongo
 from summarize import process_article_summaries
 
-reviewers = [{
-    'name': 'Dale',
-    'email': 'dparry@michigan.com'
-}, {
-    'name': 'Eric',
-    'email': 'ebower@michigan.com'
-}, {
-    'name': 'Mike',
-    'email': 'mvarano@michigan.com'
-}, {
-    'name': 'Reid',
-    'email': 'rwilliams@michigan.com'
-}]
 
 def create_app():
     app = Flask(__name__)
@@ -28,16 +17,24 @@ def create_app():
 
     @app.route('/')
     def review():
-        return render_template('index.html', reviewers=reviewers)
+        return render_template('index.html')
 
     @app.route('/get-reviews/')
     def get_reviews():
-        unapproved_reviews = SummaryReview.query.filter(SummaryReview.approved==False) \
-            .limit(10).ascending(SummaryReview.mongo_id)
+        email = request.args.get('email', None)
+        if not email:
+            print('No email')
+            return jsonify({})
 
-        reviews = [r.json() for r in unapproved_reviews]
+        reviews = mongo.db.SummaryReview.find({
+            'picks': {
+                '$not': {
+                    '$exists': email
+                }
+            }
+        })
 
-        return jsonify({
+        return dumps({
             'reviews': reviews
         })
 
