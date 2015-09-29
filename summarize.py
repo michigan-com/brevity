@@ -34,8 +34,8 @@ def process_article_summaries(db):
             skipped += 1
             continue
 
-        article['summary'] = summarize(article['headline'], article['body'])
-        col.update({ '_id': article['_id'] }, article)
+        summary = summarize(article['headline'], article['body'])
+        col.update({ '_id': article['_id'] }, { '$set': { 'summary': summary } })
         summarized += 1
 
     return { 'skipped': skipped, 'summarized': summarized }
