@@ -6,7 +6,7 @@ var sass = require('gulp-sass');
 var neat = require('node-neat');
 
 var cssSrc = './src/scss/';
-var cssDist = './public/css/';
+var cssDist = './static/css/';
 var sassFiles = cssSrc + '**/*.scss';
 
 /**

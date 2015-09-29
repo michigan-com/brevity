@@ -10,7 +10,8 @@ class SummaryReview extends React.Component {
     this.state = {
       user: '',
       fetched: false,
-      articles: []
+      articles: [],
+      activeArticleIndex: -1
     }
     this.reviewers = [{
         name: 'Dale',
@@ -44,9 +45,15 @@ class SummaryReview extends React.Component {
     this.getSummaries(e.target.value)
   }
 
+  activateArticle(index) {
+    this.setState({
+      activeArticleIndex: index
+    })
+  }
+
   renderArticleHeadline(option, index) {
     return (
-      <div className='article-option'>
+      <div className='article-option' onClick={ this.activateArticle.bind(this, index) }>
         <div className='headline'>{ option.headline }</div>
       </div>
     )
@@ -63,7 +70,7 @@ class SummaryReview extends React.Component {
       <div className='select' id='user-select'>
         <select onChange={ this.nameChange.bind(this) } value={ this.state.user }>
           <option value=''>Choose your name...</option>
-          { this.reviewers.map(renderOption) }
+          { this.reviewers.map(renderOption.bind(this)) }
         </select>
       </div>
     )
@@ -73,13 +80,24 @@ class SummaryReview extends React.Component {
     if (this.state.user == '') {
       return this.renderSelect()
     } else {
-      return (
-        <div>
-          { this.renderSelect() }
-          <div>Hey { this.state.user }</div>
-          { this.state.articles.map(this.renderArticleHeadline) }
-        </div>
-      )
+      if (this.state.activeArticleIndex == -1) {
+        return (
+          <div>
+            { this.renderSelect() }
+            <div>Hey { this.state.user }</div>
+            <div className='article-options'>
+              { this.state.articles.map(this.renderArticleHeadline.bind(this)) }
+            </div>
+          </div>
+        )
+      } else if (this.state.activeArticleIndex < this.state.articles.length ){
+        return (
+          <div className='article-summary-check'>
+            <div className='close-review' onClick={ this.activateArticle.bind(this, -1) }>X</div>
+            { this.state.articles[this.state.activeArticleIndex].headline }
+          </div>
+        )
+      }
     }
   }
 }
