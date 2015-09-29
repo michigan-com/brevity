@@ -1,3 +1,5 @@
 env.sh
 *.pyc
 *.swp
+node_modules/
+static/
