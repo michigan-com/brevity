@@ -2,7 +2,7 @@
 from __future__ import print_function
 import sys
 
-#from pymongo import MongoClient
+from pymongo import MongoClient
 from summarizer import summarize
 
 __version__ = '0.0.1'
@@ -22,7 +22,7 @@ def process_article_summaries(db):
     skipped = 0
     summarized = 0
     for article in articles:
-        if 'summary' in article and article['summary'] != "":
+        if 'summary' in article and len(article['summary']) > 0:
             print("Already found summary for {}, skipping ...".format(article['headline']), file=sys.stderr)
             skipped += 1
             continue
@@ -34,8 +34,8 @@ def process_article_summaries(db):
             skipped += 1
             continue
 
-        article['summary'] = "".join(summarize(article['headline'], article['body']))
-        col.replace_one({ '_id': article['_id'] }, article)
+        article['summary'] = summarize(article['headline'], article['body'])
+        col.update({ '_id': article['_id'] }, article)
         summarized += 1
 
     return { 'skipped': skipped, 'summarized': summarized }

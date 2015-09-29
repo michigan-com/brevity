@@ -44,10 +44,7 @@ def create_app():
     @app.route('/newsfetch-summarize/')
     def process_newsfetch_articles():
         results = process_article_summaries(mongo.db)
-
-        return jsonify({
-            'success': True
-        })
+        return jsonify(results)
 
     #app.register_blueprint(blueprint)
 
