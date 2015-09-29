@@ -1,0 +1,41 @@
+{
+  "name": "brevity",
+  "version": "0.0.1",
+  "description": "Summarizer for Gannett News articles",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michigan-com/brevity.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michigan-com/brevity/issues"
+  },
+  "homepage": "https://github.com/michigan-com/brevity#readme",
+  "dependencies": {
+    "babel-runtime": "^5.8.25",
+    "babelify": "^6.3.0",
+    "browserify": "^11.2.0",
+    "browserify-shim": "^3.8.10",
+    "gulp": "^3.9.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-sass": "^2.0.4",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-tap": "^0.1.3",
+    "gulp-util": "^3.0.6",
+    "lodash": "^3.10.1",
+    "node-neat": "^1.7.2",
+    "pkgify": "^1.0.3",
+    "react": "^0.13.3",
+    "reactify": "^1.1.1",
+    "require-dir": "^0.3.0",
+    "run-sequence": "^1.1.4",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "browserify-shim": {}
+}

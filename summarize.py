@@ -16,13 +16,13 @@ def connect(uri="mongodb://localhost:27017/mapi"):
 def disconnect(client):
     return client.close()
 
-def process_article_summaries(db):
+def process_article_summaries(db, override=False):
     col = db.Article
     articles = col.find()
     skipped = 0
     summarized = 0
     for article in articles:
-        if 'summary' in article and len(article['summary']) > 0:
+        if not override and 'summary' in article and len(article['summary']) > 0:
             print("Already found summary for {}, skipping ...".format(article['headline']), file=sys.stderr)
             skipped += 1
             continue
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     client = connect(uri)
     db = client.get_default_database()
 
-    results = process_article_sumamries(db)
+    results = process_article_summaries(db, override=True)
 
     disconnect(client)
 
