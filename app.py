@@ -1,7 +1,8 @@
 import os
 
 from flask import Flask, render_template, request, jsonify, Blueprint
-from db import db_connect
+from db import db_connect, db
+from summarize import process_article_summaries
 
 reviewers = [{
     'name': 'Dale',
@@ -23,13 +24,13 @@ def create_app():
 
     db_connect(app)
 
-    blueprint = Blueprint("default", "default", template_folder=os.path.join('.', 'templates'))
+    #blueprint = Blueprint("default", "default", template_folder=os.path.join('.', 'templates'))
 
-    @blueprint.route('/')
+    @app.route('/')
     def review():
         return render_template('index.html', reviewers=reviewers)
 
-    @blueprint.route('/get-reviews/')
+    @app.route('/get-reviews/')
     def get_reviews():
         unapproved_reviews = SummaryReview.query.filter(SummaryReview.approved==False) \
             .limit(10).ascending(SummaryReview.mongo_id)
@@ -40,7 +41,15 @@ def create_app():
             'reviews': reviews
         })
 
-    app.register_blueprint(blueprint)
+    @app.route('/newsfetch-summarize/')
+    def process_newsfetch_articles():
+        results = process_article_summaries(db)
+
+        return jsonify({
+            'success': True
+        })
+
+    #app.register_blueprint(blueprint)
 
     return app
 
