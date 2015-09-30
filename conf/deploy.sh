@@ -7,6 +7,7 @@ printer(){
 }
 
 APP_DIR="/srv/sites/brevity"
+ENV_DIR="/srv/virtualenvs/brevity"
 
 printer "Deploying BREVITY app ..."
 cd $APP_DIR
@@ -16,6 +17,7 @@ git stash
 git pull origin master
 
 printer "Installing python packages ..."
+source $ENV_DIR/bin/activate
 pip install -r requirements.txt
 
 printer "Installing node modules ..."
