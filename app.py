@@ -3,7 +3,7 @@ import os
 import requests
 from flask import Flask, render_template, request, jsonify, Blueprint
 from bson.json_util import dumps
-from summarizer import summarize
+from summarizer.parser import Parser
 
 from db import db_connect, mongo
 from summary import process_article_summaries
@@ -45,9 +45,13 @@ def create_app():
         req.raise_for_status()
 
         article = req.json()
-        summary = summarize(article['headline'], article['body'])
+        parser = Parser()
+        tokens = parser.split_sentences(article['body'])
 
-        return render_template('article.html', article=article, summary=summary)
+        return jsonify({
+            'article': article,
+            'tokens': tokens
+        })
 
     @app.route('/newsfetch-summarize/')
     def process_newsfetch_articles():

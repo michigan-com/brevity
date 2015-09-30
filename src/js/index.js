@@ -1,6 +1,6 @@
 import React from 'react';
 import xr from 'xr';
-
+import SummaryPicker from './model/summary-picker';
 
 // Name dropdown
 class SummaryReview extends React.Component {
