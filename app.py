@@ -1,11 +1,12 @@
 import os
 
+import requests
 from flask import Flask, render_template, request, jsonify, Blueprint
 from bson.json_util import dumps
+from summarizer import summarize
 
 from db import db_connect, mongo
-from summarize import process_article_summaries
-
+from summary import process_article_summaries
 
 def create_app():
     app = Flask(__name__)
@@ -37,6 +38,16 @@ def create_app():
         return dumps({
             'reviews': reviews
         })
+
+    @app.route('/article/<int:article_id>/')
+    def article(article_id):
+        req = requests.get(''.join(['https://api.michigan.com/v1/article/', str(article_id)]))
+        req.raise_for_status()
+
+        article = req.json()
+        summary = summarize(article['headline'], article['body'])
+
+        return render_template('article.html', article=article, summary=summary)
 
     @app.route('/newsfetch-summarize/')
     def process_newsfetch_articles():
