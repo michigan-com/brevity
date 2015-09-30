@@ -1,5 +1,10 @@
+import url from 'url';
+
 import React from 'react';
 import xr from 'xr';
+
+require('historyjs/scripts/bundled/html4+html5/native.history.js');
+
 import SummaryPicker from './model/summary-picker';
 import { addMessage } from './model/flash-messages';
 
@@ -33,8 +38,20 @@ class SummaryReview extends React.Component {
   getSummaries(name) {
     xr.get('/get-reviews/', { name })
     .then( res => {
+      let activeArticleIndex = -1;
+      if (this.props.articleId) {
+        for (let i = 0; i < res.reviews.length; i++) {
+          let review = res.reviews[i];
+          if (review.article_id === this.props.articleId) {
+            activeArticleIndex = i;
+            break;
+          }
+        }
+      }
+
       this.setState({
-        articles: res.reviews
+        articles: res.reviews,
+        activeArticleIndex
       })
     })
   }
@@ -57,14 +74,12 @@ class SummaryReview extends React.Component {
       summary: JSON.stringify(summary),
       name
     }).then(res => {
-        if (res.success) {
-          addMessage(`Article "${article.headline}" updated`)
-          this.state.articles[this.state.activeArticleIndex] = res.article;
-          this.setState({
-            activeArticleIndex: -1
-          })
-        }
-      });
+      if (res.success) {
+        addMessage(`Article "${article.headline}" updated`)
+        this.state.articles[this.state.activeArticleIndex] = res.article;
+        activateArticle(-1)
+      }
+    });
   }
 
   nameChange(e) {
@@ -76,6 +91,12 @@ class SummaryReview extends React.Component {
   }
 
   activateArticle(index) {
+    if (index === -1) {
+      History.back()
+    } else {
+      let articleId = this.state.articles[index].article_id;
+      History.pushState({ articleId }, `Article ${articleId}`, `?articleId=${articleId}`);
+    }
     this.setState({
       activeArticleIndex: index
     })
@@ -154,8 +175,13 @@ class SummaryReview extends React.Component {
   }
 }
 
+let parsed = url.parse(window.location.href, true);
+let articleId;
+if (parsed.query && 'articleId' in parsed.query && !isNaN(parsed.query.articleId)) {
+  articleId = parseInt(parsed.query.articleId);
+}
 
 React.render(
-  <SummaryReview/>,
+  <SummaryReview articleId={ articleId }/>,
   document.getElementById('summary-review')
 )
