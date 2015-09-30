@@ -9,6 +9,8 @@ from summarizer.parser import Parser
 from db import db_connect, mongo
 from summary import process_article_summaries
 
+default_config = 'Dev'
+
 class Unprocessable(Exception):
     def __init__(self, message='Missing request parameters', data=None):
         self.message = message
@@ -23,9 +25,23 @@ class Unauthorized(Exception):
     def __str__(self):
         return repr(self.message)
 
+class Config(object):
+    DEBUG = True
+    MONGO_URI = 'mongodb://localhost:27017/mapi'
+
+class Prod(Config):
+    DEBUG = False
+
+class Dev(Config):
+    pass
+
 def create_app():
+    config = os.getenv('CONFIG', default_config).title()
+    if config not in [default_config, 'Prod']:
+        config = default_config
+
     app = Flask(__name__)
-    app.config['DEBUG'] = True
+    app.config.from_object('app.' + config)
 
     db_connect(app)
 
