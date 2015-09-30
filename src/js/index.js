@@ -52,32 +52,19 @@ class SummaryReview extends React.Component {
     let article = this.state.articles[this.state.activeArticleIndex];
     let name = this.state.user;
 
-    if (flagged_sentences.length) {
-      xr.get(`/article/${article.article_id}/invalid/`, {
-        flagged_sentences: JSON.stringify(flagged_sentences)
-      }).then(res => {
-          if (res.success) {
-            addMessage(`Article "${article.headline}" updated with flagged sentences`)
-            this.state.articles[this.state.activeArticleIndex] = res.article;
-            this.setState({
-              activeArticleIndex: -1
-            })
-          }
-        });
-    } else if (summary.length) {
-      xr.get(`/article/${article.article_id}/summary/`, {
-        summary: JSON.stringify(summary),
-        name
-      }).then(res => {
-          if (res.success) {
-            addMessage(`Article "${article.headline}" updated with summary from ${this.state.user}`)
-            this.state.articles[this.state.activeArticleIndex] = res.article;
-            this.setState({
-              activeArticleIndex: -1
-            })
-          }
-        })
-    }
+    xr.get(`/article/${article.article_id}/summary/`, {
+      flagged_sentences: JSON.stringify(flagged_sentences),
+      summary: JSON.stringify(summary),
+      name
+    }).then(res => {
+        if (res.success) {
+          addMessage(`Article "${article.headline}" updated`)
+          this.state.articles[this.state.activeArticleIndex] = res.article;
+          this.setState({
+            activeArticleIndex: -1
+          })
+        }
+      });
   }
 
   nameChange(e) {

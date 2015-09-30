@@ -73,53 +73,37 @@ def create_app():
         results = process_article_summaries(mongo.db)
         return jsonify(results)
 
-    @app.route('/article/<int:article_id>/invalid/', methods=['GET', 'POST'])
-    def invalid(article_id):
-        flagged_sentences = request.values.get('flagged_sentences', None)
-        if not flagged_sentences:
-            raise Unprocessable('"flagged_sentences" not found')
-
-        flagged_sentences = json.loads(flagged_sentences)
-
-        article = mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
-        if 'invalid' not in article:
-            article['invalid'] = []
-        invalids = set(article['invalid'])
-
-        for sentence in flagged_sentences:
-            invalids.add(sentence)
-
-        article = mongo.db.SummaryReview.update({ 'article_id': article_id }, {
-            '$set': {
-                'invalid': list(invalids)
-            }
-        })
-
-        return dumps({
-            'success': True,
-            'article': mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
-        })
-
     @app.route('/article/<int:article_id>/summary/', methods=['GET', 'POST'])
     def add_summary(article_id):
         name = request.values.get('name', None)
-        summarySentences = request.values.get('summary', None)
+        summary_sentences = request.values.get('summary', None)
+        flagged_sentences = request.values.get('flagged_sentences', None)
         if not name:
             raise Unprocessable('Email not found')
-        elif not summarySentences:
+        elif not summary_sentences:
             raise Unprocessable('Summary not found')
+        elif not flagged_sentences:
+            raise Unprocessable('Flagged sentences not found')
 
-        summarySentences = json.loads(summarySentences)
+        summary_sentences = json.loads(summary_sentences)
+        flagged_sentences = json.loads(flagged_sentences)
 
         article = mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
+
         if 'summary' not in article:
             article['summary'] = {}
         summary = article['summary']
-        summary[name] = summarySentences
+        summary[name] = summary_sentences
+
+        if 'invalid' not in article:
+            article['invalid'] = []
+        invalids = flagged_sentences
+
 
         article = mongo.db.SummaryReview.update({ 'article_id': article_id }, {
             '$set': {
-                'summary': summary
+                'summary': summary,
+                'invalid': invalids
             }
         })
 
