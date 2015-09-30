@@ -1,5 +1,6 @@
 import React from 'react';
 import xr from 'xr';
+import { addMessage } from './flash-messages';
 
 var tokenCache = {};
 
@@ -44,9 +45,10 @@ export default class SummaryPicker extends React.Component {
 
   addSentence(index) {
     if (this.state.summarySentences.length == 3) {
-      // TODO feedback
+      addMessage('Only 3 sentances per summary');
       return;
     } else if (index < 0 || index >= this.state.tokens.length) {
+      addMessage('Invalid sentance');
       return
     }
 
@@ -73,6 +75,7 @@ export default class SummaryPicker extends React.Component {
 
   flagSentence(index) {
     if (index < 0 || index >= this.state.tokens.length) {
+      addMessage('Invalid sentance')
       return
     }
 
@@ -106,10 +109,12 @@ export default class SummaryPicker extends React.Component {
       state = 'selected';
       addActive = true;
       addOnClick = this.removeSentence.bind(this, index);
+      flagOnClick = function() { addMessage('Sentance already selected as a summary') }
     } else if (this.state.flaggedSentences.indexOf(index) >= 0) {
       state = 'flagged';
       flagActive = true;
       flagOnClick = this.removeFlagged.bind(this, index);
+      addOnClick = function() { addMessage('Sentance already flagged as invalid') }
     }
 
     return (
@@ -126,15 +131,25 @@ export default class SummaryPicker extends React.Component {
   renderSummarySentence(sentenceIndex, index) {
     return (
       <div className='summary-sentence' key={ `summary-selection-${index}` }>
-        { this.state.tokens[sentenceIndex] }
+        <div className='remove'>
+          <i onClick={ this.removeSentence.bind(this, sentenceIndex) } className='fa fa-times'></i>
+        </div>
+        <div className='content'>
+          { this.state.tokens[sentenceIndex] }
+        </div>
       </div>
     )
   }
 
   renderFlaggedSentence(sentenceIndex, index) {
     return (
-      <div className='rejected-sentence' key={ `flagged-selection-${index}` }>
-        { this.state.tokens[sentenceIndex] }
+      <div className='flagged-sentence' key={ `flagged-selection-${index}` }>
+        <div className='remove'>
+          <i onClick={ this.removeFlagged.bind(this, sentenceIndex) } className='fa fa-times'></i>
+        </div>
+        <div className='content'>
+          { this.state.tokens[sentenceIndex] }
+        </div>
       </div>
     )
   }

@@ -67,6 +67,49 @@ $dark-blue: #0F454F;
 
     .summary-sentence, .flagged-sentence {
       margin: 10px 0px;
+
+      .remove {
+        width: 20%;
+        text-align: center;
+        display: inline-block;
+      }
+
+      .content {
+        width: 80%;
+        display: inline-block;
+      }
+    }
+  }
+}
+
+#messages {
+  position: fixed;
+  top: 10px;
+  width: 75%;
+  margin: 0 12.5%;
+
+  .message {
+    background-color: #FC8D1F;
+    color: black;
+    position: relative;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 0 3px black;
+
+    .content {
+      width: 80%;
+      display: inline-block;
+    }
+
+    .remove-message {
+      width: 20%;
+      display: inline-block;
+      text-align: right;
+
+      .fa {
+        cursor: pointer;
+      }
     }
   }
 }
