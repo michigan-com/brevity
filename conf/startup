@@ -6,7 +6,7 @@ SOCKFILE=/srv/sites/brevity/run/gunicorn.sock
 USER=ebower
 GROUP=web
 NUM_WORKERS=6
-WSGI_MODULE=app.wsgi
+WSGI_MODULE=wsgi
 VIRTENV=/srv/virtualenvs/brevity
 
 echo "Starting $NAME"
