@@ -30,31 +30,14 @@ export default class SummaryPicker extends React.Component {
   loadTokenData(tokens) {
     let user = this.props.user;
     let article = this.props.article;
-    let summarySentences = [];
+    let summarySentences = []
     let flaggedSentences = [];
 
-    let summaryMap = {};
-    if ('summary' in article && this.props.user in article.summary) {
-      for (let summary of article.summary[user]) {
-        summaryMap[summary] = true;
-      }
+    if ('invalid' in this.props.article) {
+      flaggedSentences = this.props.article.invalid
     }
-
-    let flaggedMap = {};
-    if ('invalid' in article) {
-      for (let invalid of article.invalid) {
-        flaggedMap[invalid] = true;
-      }
-    }
-
-    for (let i = 0; i < tokens.length; i++) {
-      let token = tokens[i];
-      if (token in summaryMap) {
-        summarySentences.push(i);
-      }
-      if (token in flaggedMap) {
-        flaggedSentences.push(i);
-      }
+    if (!flaggedSentences.length && 'summary' in this.props.article && user in this.props.article.summary) {
+      summarySentences = this.props.article.summary[user]
     }
 
     this.setState({
@@ -83,11 +66,11 @@ export default class SummaryPicker extends React.Component {
     let flagged = [];
     if (this.state.flaggedSentences.length) {
       for (var index of this.state.flaggedSentences) {
-        flagged.push(this.state.tokens[index])
+        flagged.push(index)
       }
     } else {
       for (var index of this.state.summarySentences) {
-        summary.push(this.state.tokens[index])
+        summary.push(index)
       }
     }
 
