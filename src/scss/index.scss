@@ -14,9 +14,28 @@ $z-index-messages: 1000;
   font-size: 25px;
   line-height: 35px;
   cursor: pointer;
-  background-color: $dark-blue;
-  color: white;
+  background-color: #eee;
+  color: black;
   margin: 5px 0px;
+
+  .status {
+    width: 10%;
+    display: inline-block;
+    text-align: center;
+
+    .flagged-article {
+      color: red;
+    }
+
+    .summary-added {
+      color: green;
+    }
+  }
+
+  .headline {
+    width: 90%;
+    display: inline-block;
+  }
 }
 
 .sentence {

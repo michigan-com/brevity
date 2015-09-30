@@ -95,8 +95,29 @@ class SummaryReview extends React.Component {
   }
 
   renderArticleHeadline(option, index) {
+    let user = this.state.user;
+    let invalid = false;
+    let summaryChosen = false;
+    let status;
+
+    if ('invalid' in option && option.invalid.length) {
+      invalid = true;
+      status = (
+        <div className='flagged-article'>
+          <i className='fa fa-flag'></i>
+        </div>
+      )
+    } else if ('summary' in option && user in option.summary) {
+      summaryChosen = true;
+      status = (
+        <div className='summary-added'>
+          <i className='fa fa-check'></i>
+        </div>
+      )
+    }
     return (
       <div className='article-option' onClick={ this.activateArticle.bind(this, index) }>
+        <div className='status'>{ status }</div>
         <div className='headline'>{ option.headline }</div>
       </div>
     )
@@ -138,7 +159,7 @@ class SummaryReview extends React.Component {
         return (
           <div className='article-summary-check'>
             <div className='close-review' onClick={ this.activateArticle.bind(this, -1) }>X</div>
-            <SummaryPicker onSave={ this.saveSummary.bind(this) } articleId={ article.article_id } headline={ article.headline }/>
+            <SummaryPicker onSave={ this.saveSummary.bind(this) } article={ article } user={ user }
           </div>
         )
       }
