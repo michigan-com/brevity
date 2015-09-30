@@ -14,9 +14,29 @@ $z-index-messages: 1000;
   font-size: 25px;
   line-height: 35px;
   cursor: pointer;
-  background-color: $dark-blue;
-  color: white;
+  background-color: #eee;
+  color: black;
   margin: 5px 0px;
+
+  .status {
+    width: 10%;
+    display: inline-block;
+    text-align: center;
+    color: white;
+
+    .flagged-article {
+      background-color: red;
+    }
+
+    .summary-added {
+      background-color: green;
+    }
+  }
+
+  .headline {
+    width: 90%;
+    display: inline-block;
+  }
 }
 
 .sentence {
@@ -33,22 +53,24 @@ $z-index-messages: 1000;
       width: 50%;
       text-align: center;
       color: black;
+      cursor: pointer;
 
       &.add {
-        & .fa:hover, & .fa.active {
-          color: green;
+        background-color: white;
+        &:hover, &.active {
+          background-color: green;
+          color: white;
         }
       }
 
       &.flag {
-        & .fa:hover, & .fa.active {
-          color: red;
+        background-color: white;
+        &:hover, &.active {
+          background-color: red;
+          color: white;
         }
       }
 
-      .fa {
-        cursor: pointer;
-      }
     }
   }
 

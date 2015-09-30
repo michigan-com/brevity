@@ -7,6 +7,7 @@ var tokenCache = {};
 export default class SummaryPicker extends React.Component {
   constructor(args) {
     super(args)
+
     this.state = {
       summaryLoaded: false,
       tokens: [],
@@ -21,26 +22,59 @@ export default class SummaryPicker extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.articleId != this.props.articleId) {
-      this.loadTokenizedBody(nextProps.articleId)
+    if (nextProps.article.article_id != this.props.article.article_id) {
+      this.loadTokenizedBody(nextProps.article.article_id)
     }
   }
 
+  loadTokenData(tokens) {
+    let user = this.props.user;
+    let article = this.props.article;
+    let summarySentences = [];
+    let flaggedSentences = [];
+
+    let summaryMap = {};
+    if ('summary' in article && this.props.user in article.summary) {
+      for (let summary of article.summary[user]) {
+        summaryMap[summary] = true;
+      }
+    }
+
+    let flaggedMap = {};
+    if ('invalid' in article) {
+      for (let invalid of article.invalid) {
+        flaggedMap[invalid] = true;
+      }
+    }
+
+    for (let i = 0; i < tokens.length; i++) {
+      let token = tokens[i];
+      if (token in summaryMap) {
+        summarySentences.push(i);
+      }
+      if (token in flaggedMap) {
+        flaggedSentences.push(i);
+      }
+    }
+
+    this.setState({
+      tokens,
+      summarySentences,
+      flaggedSentences
+    })
+  }
+
   loadTokenizedBody(articleId) {
-    if (typeof articleId === 'undefined') articleId = this.props.articleId;
+    if (typeof articleId === 'undefined') articleId = this.props.article.article_id;
     if (articleId in tokenCache) {
-      this.setState({
-        tokens: tokenCache[articleId]
-      });
+      this.loadTokenData(tokenCache[articleId])
       return;
     }
 
     xr.get(`/article/${articleId}`)
       .then( res => {
         tokenCache[articleId] = res.tokens;
-        this.setState({
-          tokens: res.tokens
-        })
+        this.loadTokenData(tokenCache[articleId])
       })
   }
 
@@ -59,6 +93,7 @@ export default class SummaryPicker extends React.Component {
 
     this.props.onSave(this.props.articleId, summary, flagged);
   }
+
   addSentence(index) {
     if (this.state.summarySentences.length == 3) {
       addMessage('Only 3 sentances per summary');
@@ -117,7 +152,7 @@ export default class SummaryPicker extends React.Component {
 
     if (!found) return;
 
-    let articleSavePossible = flaggedSentences.length ? true : false;
+    let articleSavePossible = flaggedSentences.length || this.state.summarySentences.length ? true : false;
     this.setState({ flaggedSentences, articleSavePossible })
   }
 
@@ -217,7 +252,7 @@ export default class SummaryPicker extends React.Component {
   render() {
     return (
       <div className='summary-picker'>
-        <div className='headline'>{ this.props.headline }</div>
+        <div className='headline'>{ this.props.article.headline }</div>
         { this.renderSelections() }
         <div className='sentances'>
           { this.state.tokens.map(this.renderSentence.bind(this)) }
@@ -235,17 +270,17 @@ class SentenceControl extends React.Component{
   renderControl() {
     if (this.props.type === 'add') {
       return  (
-        <i onClick={ this.props.onClick } className={ `fa fa-plus ${this.props.active ? 'active' : ''}` }></i>
+        <i className={ `fa fa-plus ` }></i>
       )
     } else if (this.props.type === 'flag'){
       return (
-        <i onClick={ this.props.onClick } className={ `fa fa-flag ${this.props.active ? 'active' : ''}` }></i>
+        <i className={ `fa fa-flag ` }></i>
       )
     }
   }
   render() {
     return (
-      <div className={ `control ${this.props.type}` }>
+      <div onClick={ this.props.onClick } className={ `control ${this.props.type} ${this.props.active ? 'active': ''}` }>
         { this.renderControl()  }
       </div>
     )
