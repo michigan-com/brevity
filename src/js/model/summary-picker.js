@@ -82,7 +82,7 @@ export default class SummaryPicker extends React.Component {
     let summary = [];
     let flagged = [];
     if (this.state.flaggedSentences.length) {
-      for (var index in this.state.flaggedSentences) {
+      for (var index of this.state.flaggedSentences) {
         flagged.push(this.state.tokens[index])
       }
     } else {
@@ -96,10 +96,10 @@ export default class SummaryPicker extends React.Component {
 
   addSentence(index) {
     if (this.state.summarySentences.length == 3) {
-      addMessage('Only 3 sentances per summary');
+      addMessage('Only 3 sentences per summary');
       return;
     } else if (index < 0 || index >= this.state.tokens.length) {
-      addMessage('Invalid sentance');
+      addMessage('Invalid sentence');
       return
     }
 
@@ -129,7 +129,7 @@ export default class SummaryPicker extends React.Component {
 
   flagSentence(index) {
     if (index < 0 || index >= this.state.tokens.length) {
-      addMessage('Invalid sentance')
+      addMessage('Invalid sentence')
       return
     }
 
@@ -166,12 +166,12 @@ export default class SummaryPicker extends React.Component {
       state = 'selected';
       addActive = true;
       addOnClick = this.removeSentence.bind(this, index);
-      flagOnClick = function() { addMessage('Sentance already selected as a summary') }
+      flagOnClick = function() { addMessage('Sentence already selected as a summary') }
     } else if (this.state.flaggedSentences.indexOf(index) >= 0) {
       state = 'flagged';
       flagActive = true;
       flagOnClick = this.removeFlagged.bind(this, index);
-      addOnClick = function() { addMessage('Sentance already flagged as invalid') }
+      addOnClick = function() { addMessage('Sentence already flagged as invalid') }
     }
 
     return (
@@ -181,6 +181,7 @@ export default class SummaryPicker extends React.Component {
           <SentenceControl type='flag' active={ flagActive} onClick={ flagOnClick }/>
         </div>
         <div className='content'>{ sentence }</div>
+        <hr/>
       </div>
     )
   }
@@ -222,7 +223,7 @@ export default class SummaryPicker extends React.Component {
     }
 
     return (
-      <div className='sentances'>
+      <div className='sentences'>
         { content }
       </div>
     )
