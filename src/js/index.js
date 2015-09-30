@@ -77,7 +77,7 @@ class SummaryReview extends React.Component {
       if (res.success) {
         addMessage(`Article "${article.headline}" updated`)
         this.state.articles[this.state.activeArticleIndex] = res.article;
-        activateArticle(-1)
+        this.activateArticle(-1)
       }
     });
   }
@@ -92,7 +92,11 @@ class SummaryReview extends React.Component {
 
   activateArticle(index) {
     if (index === -1) {
-      History.back()
+      if (History.stateChanged) {
+        History.back()
+      } else {
+        History.pushState({}, `Reviews`, '?')
+      }
     } else {
       let articleId = this.state.articles[index].article_id;
       History.pushState({ articleId }, `Article ${articleId}`, `?articleId=${articleId}`);
@@ -166,7 +170,7 @@ class SummaryReview extends React.Component {
         let article = this.state.articles[this.state.activeArticleIndex];
         return (
           <div className='article-summary-check'>
-            <div className='close-review' onClick={ this.activateArticle.bind(this, -1) }>X</div>
+            <div className='close-review' onClick={ this.activateArticle.bind(this, -1) }>{ `< Back to articles` }</div>
             <SummaryPicker onSave={ this.saveSummary.bind(this) } article={ article } user={ this.state.user }/>
           </div>
         )

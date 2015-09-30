@@ -3,6 +3,10 @@
 $dark-blue: #0F454F;
 $z-index-messages: 1000;
 
+*, *:after *:before {
+  box-sizing: border-box;
+}
+
 .article-options {
   width: 75%;
   margin: 0 auto;
@@ -36,7 +40,20 @@ $z-index-messages: 1000;
   .headline {
     width: 90%;
     display: inline-block;
+    padding-left: 10px;
   }
+}
+
+.close-review {
+  background-color: $dark-blue;
+  color: white;
+  padding: 10px;
+  font-size: 20px;
+  line-height: 30px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 15%;
+  text-align: center;
 }
 
 .sentence {
@@ -54,6 +71,8 @@ $z-index-messages: 1000;
       text-align: center;
       color: black;
       cursor: pointer;
+      font-size: 20px;
+      line-height: 30px;
 
       &.add {
         background-color: white;
@@ -77,6 +96,25 @@ $z-index-messages: 1000;
   .content {
     display: inline-block;
     width: 70%;
+  }
+}
+
+.summary-picker {
+  .headline {
+    width: 90%;
+    margin: 0 auto;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .loading-sentences {
+    width: 100%;
+    font-size: 25px;
+    line-height: 40px;
+    text-align: center;
+    margin: 20px 0px;
   }
 }
 

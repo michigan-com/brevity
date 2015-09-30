@@ -211,6 +211,23 @@ export default class SummaryPicker extends React.Component {
     )
   }
 
+  renderSentences() {
+    let content = (<div className='loading-sentences'>Loading sentences...</div>)
+    if (this.state.tokens.length) {
+      content = (
+        <div className='content'>
+          { this.state.tokens.map(this.renderSentence.bind(this)) }
+        </div>
+      )
+    }
+
+    return (
+      <div className='sentances'>
+        { content }
+      </div>
+    )
+  }
+
   renderSelections() {
     let summaries;
     if (this.state.flaggedSentences.length) {
@@ -250,13 +267,12 @@ export default class SummaryPicker extends React.Component {
   }
 
   render() {
+
     return (
       <div className='summary-picker'>
         <div className='headline'>{ this.props.article.headline }</div>
         { this.renderSelections() }
-        <div className='sentances'>
-          { this.state.tokens.map(this.renderSentence.bind(this)) }
-        </div>
+        { this.renderSentences() }
       </div>
     )
   }
