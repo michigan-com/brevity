@@ -84,11 +84,11 @@ def create_app():
         if not flagged_sentence:
             raise Unprocessable('"sentence" not found')
 
-        article = db.SummaryReview.find({ 'article_id': article_id }).limit(1)
+        article = mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)
         invalids = set(article['invalid'])
         invalids.add(flagged_sentence)
 
-        db.SummaryReview.update({ 'article_id': article_id }, {
+        mongo.db.SummaryReview.update({ 'article_id': article_id }, {
             "$set": {
                 "invalid": invalids
             }
