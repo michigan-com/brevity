@@ -31,5 +31,5 @@ printer "Adding Github tag $(<version.cfg) ..."
 git tag -a $(<version.cfg) -m 'New Release'
 
 printer "Pushing tag to repo ..."
-git fetch --tags deploy
-git push deploy --tags
+git fetch --tags origin
+git push origin --tags
