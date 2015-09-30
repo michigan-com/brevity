@@ -32,6 +32,9 @@ class SummaryReview extends React.Component {
     }, {
         name: 'Reid',
         email: 'rwilliams@michigan.com'
+    }, {
+      name: 'Andrey',
+      email: ''
     }]
   }
 
