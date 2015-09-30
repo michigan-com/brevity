@@ -9,7 +9,7 @@ printer(){
 APP_DIR="/srv/sites/brevity"
 
 printer "Deploying BREVITY app ..."
-cd APP_DIR
+cd $APP_DIR
 
 printer "Grabbing latest source code from MASTER ..."
 git stash
