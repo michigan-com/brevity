@@ -1,4 +1,5 @@
 import os
+import json
 
 import requests
 from flask import Flask, render_template, request, jsonify, make_response
@@ -42,15 +43,15 @@ def create_app():
 
     @app.route('/get-reviews/')
     def get_reviews():
-        email = request.args.get('email', None)
-        if not email:
+        name = request.args.get('name', None)
+        if not name:
             print('No email')
             return jsonify({})
 
         reviews = mongo.db.SummaryReview.find({
             'picks': {
                 '$not': {
-                    '$exists': email
+                    '$exists': name
                 }
             }
         })
@@ -80,21 +81,58 @@ def create_app():
 
     @app.route('/article/<int:article_id>/invalid/', methods=['GET', 'POST'])
     def invalid(article_id):
-        flagged_sentence = request.values.get('sentence', None)
-        if not flagged_sentence:
-            raise Unprocessable('"sentence" not found')
+        flagged_sentences = request.values.get('flagged_sentences', None)
+        if not flagged_sentences:
+            raise Unprocessable('"flagged_sentences" not found')
 
-        article = mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)
+        flagged_sentences = json.loads(flagged_sentences)
+
+        article = mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
+        if 'invalid' not in article:
+            article['invalid'] = []
         invalids = set(article['invalid'])
-        invalids.add(flagged_sentence)
 
-        mongo.db.SummaryReview.update({ 'article_id': article_id }, {
-            "$set": {
-                "invalid": invalids
+        for sentence in flagged_sentences:
+            invalids.add(sentence)
+
+        article = mongo.db.SummaryReview.update({ 'article_id': article_id }, {
+            '$set': {
+                'invalid': list(invalids)
             }
         })
 
-        return jsonify({ 'success': True })
+        return dumps({
+            'success': True,
+            'article': mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
+        })
+
+    @app.route('/article/<int:article_id>/summary/', methods=['GET', 'POST'])
+    def add_summary(article_id):
+        name = request.values.get('name', None)
+        summarySentences = request.values.get('summary', None)
+        if not name:
+            raise Unprocessable('Email not found')
+        elif not summarySentences:
+            raise Unprocessable('Summary not found')
+
+        summarySentences = json.loads(summarySentences)
+
+        article = mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
+        if 'summary' not in article:
+            article['summary'] = {}
+        summary = article['summary']
+        summary[name] = summarySentences
+
+        article = mongo.db.SummaryReview.update({ 'article_id': article_id }, {
+            '$set': {
+                'summary': summary
+            }
+        })
+
+        return dumps({
+            'success': True,
+            'article': mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
+        })
 
     @app.route('/article/<int:article_id>/vote/')
     def vote():

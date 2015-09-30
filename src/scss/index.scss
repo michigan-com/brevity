@@ -1,4 +1,7 @@
+/*@import  '../../node_modules/font-awesome/scss/font-awesome';*/
+
 $dark-blue: #0F454F;
+$z-index-messages: 1000;
 
 .article-options {
   width: 75%;
@@ -19,7 +22,7 @@ $dark-blue: #0F454F;
 .sentence {
   width: 100%;
   display: block;
-  margin-bottom: 10px;
+  margin: 10px 0px;
 
   .controls {
     display: inline-block;
@@ -72,6 +75,10 @@ $dark-blue: #0F454F;
         width: 20%;
         text-align: center;
         display: inline-block;
+
+        .fa {
+          cursor: pointer;
+        }
       }
 
       .content {
@@ -87,6 +94,7 @@ $dark-blue: #0F454F;
   top: 10px;
   width: 75%;
   margin: 0 12.5%;
+  z-index: $z-index-messages;
 
   .message {
     background-color: #FC8D1F;
@@ -111,5 +119,21 @@ $dark-blue: #0F454F;
         cursor: pointer;
       }
     }
+  }
+}
+
+.save-summary {
+  width: 30%;
+  margin: 0 auto;
+  text-align: center;
+  background-color: $dark-blue;
+  color: white;
+  font-size: 20px;
+  line-height: 30px;
+  cursor: pointer;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: darken($dark-blue, .7);
   }
 }

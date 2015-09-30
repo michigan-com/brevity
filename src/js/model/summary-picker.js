@@ -11,7 +11,8 @@ export default class SummaryPicker extends React.Component {
       summaryLoaded: false,
       tokens: [],
       summarySentences: [], // Array of indexes
-      flaggedSentences: [] // array of indexes
+      flaggedSentences: [], // array of indexes
+      articleSavePossible: false
     }
   }
 
@@ -43,6 +44,21 @@ export default class SummaryPicker extends React.Component {
       })
   }
 
+  saveSummary() {
+    let summary = [];
+    let flagged = [];
+    if (this.state.flaggedSentences.length) {
+      for (var index in this.state.flaggedSentences) {
+        flagged.push(this.state.tokens[index])
+      }
+    } else {
+      for (var index of this.state.summarySentences) {
+        summary.push(this.state.tokens[index])
+      }
+    }
+
+    this.props.onSave(this.props.articleId, summary, flagged);
+  }
   addSentence(index) {
     if (this.state.summarySentences.length == 3) {
       addMessage('Only 3 sentances per summary');
@@ -54,8 +70,9 @@ export default class SummaryPicker extends React.Component {
 
     let summarySentences = this.state.summarySentences;
     summarySentences.push(index);
+    let articleSavePossible = summarySentences.length === 3 ? true : false;
 
-    this.setState({ summarySentences })
+    this.setState({ summarySentences, articleSavePossible })
   }
 
   removeSentence(index) {
@@ -70,7 +87,9 @@ export default class SummaryPicker extends React.Component {
     }
 
     if (!found) return;
-    this.setState({ summarySentences })
+
+    let articleSavePossible = summarySentences.length === 3 ? true : false;
+    this.setState({ summarySentences, articleSavePossible })
   }
 
   flagSentence(index) {
@@ -81,7 +100,8 @@ export default class SummaryPicker extends React.Component {
 
     let flaggedSentences = this.state.flaggedSentences
     flaggedSentences.push(index)
-    this.setState({ flaggedSentences })
+    let articleSavePossible = true;
+    this.setState({ flaggedSentences, articleSavePossible })
   }
 
   removeFlagged(index) {
@@ -96,7 +116,9 @@ export default class SummaryPicker extends React.Component {
     }
 
     if (!found) return;
-    this.setState({ flaggedSentences })
+
+    let articleSavePossible = flaggedSentences.length ? true : false;
+    this.setState({ flaggedSentences, articleSavePossible })
   }
 
   renderSentence(sentence, index) {
@@ -154,20 +176,49 @@ export default class SummaryPicker extends React.Component {
     )
   }
 
+  renderSelections() {
+    let summaries;
+    if (this.state.flaggedSentences.length) {
+      summaries = (
+        <div className='no-summaries'>
+          A flagged sentence is present, no summary will be saved.
+        </div>
+      )
+    } else {
+      summaries = (
+        <div className='summary'>
+          <h2>Summary</h2>
+          { this.state.summarySentences.map(this.renderSummarySentence.bind(this)) }
+        </div>
+      )
+    }
+
+    let articleSave;
+    if (this.state.articleSavePossible) {
+      articleSave = (
+        <div className='save-button-container'>
+          <div onClick={ this.saveSummary.bind(this) }className='save-summary'>Save Summary</div>
+        </div>
+      )
+    }
+
+    return (
+      <div className='selections'>
+        { summaries }
+        <div className='flagged'>
+          <h2>Flagged</h2>
+          { this.state.flaggedSentences.map(this.renderFlaggedSentence.bind(this)) }
+        </div>
+        { articleSave }
+      </div>
+    )
+  }
+
   render() {
     return (
       <div className='summary-picker'>
         <div className='headline'>{ this.props.headline }</div>
-        <div className='selections'>
-          <div className='summary'>
-            <h2>Summary</h2>
-            { this.state.summarySentences.map(this.renderSummarySentence.bind(this)) }
-          </div>
-          <div className='flagged'>
-            <h2>Flagged</h2>
-            { this.state.flaggedSentences.map(this.renderFlaggedSentence.bind(this)) }
-          </div>
-        </div>
+        { this.renderSelections() }
         <div className='sentances'>
           { this.state.tokens.map(this.renderSentence.bind(this)) }
         </div>

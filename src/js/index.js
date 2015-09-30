@@ -1,6 +1,7 @@
 import React from 'react';
 import xr from 'xr';
 import SummaryPicker from './model/summary-picker';
+import { addMessage } from './model/flash-messages';
 
 // Name dropdown
 class SummaryReview extends React.Component {
@@ -13,6 +14,7 @@ class SummaryReview extends React.Component {
       articles: [],
       activeArticleIndex: -1
     }
+
     this.reviewers = [{
         name: 'Dale',
         email: 'dparry@michigan.com'
@@ -28,13 +30,54 @@ class SummaryReview extends React.Component {
     }]
   }
 
-  getSummaries(email) {
-    xr.get('/get-reviews/', { email })
+  getSummaries(name) {
+    xr.get('/get-reviews/', { name })
     .then( res => {
       this.setState({
         articles: res.reviews
       })
     })
+  }
+
+  /**
+   * Save the summary for this user
+   *
+   * @memberof SummaryReview
+   * @param {Number} articleId - ID of the article getting summarized
+   * @param {Array[String]} summary - Array of sentences making up the summary. Limit length === 3
+   * @param {Array[String]} flagged - Array of flagged sentences. If length > 0, @param summary will not be uploaded
+   *
+   */
+  saveSummary(articleId, summary, flagged_sentences) {
+    let article = this.state.articles[this.state.activeArticleIndex];
+    let name = this.state.user;
+
+    if (flagged_sentences.length) {
+      xr.get(`/article/${article.article_id}/invalid/`, {
+        flagged_sentences: JSON.stringify(flagged_sentences)
+      }).then(res => {
+          if (res.success) {
+            addMessage(`Article "${article.headline}" updated with flagged sentences`)
+            this.state.articles[this.state.activeArticleIndex] = res.article;
+            this.setState({
+              activeArticleIndex: -1
+            })
+          }
+        });
+    } else if (summary.length) {
+      xr.get(`/article/${article.article_id}/summary/`, {
+        summary: JSON.stringify(summary),
+        name
+      }).then(res => {
+          if (res.success) {
+            addMessage(`Article "${article.headline}" updated with summary from ${this.state.user}`)
+            this.state.articles[this.state.activeArticleIndex] = res.article;
+            this.setState({
+              activeArticleIndex: -1
+            })
+          }
+        })
+    }
   }
 
   nameChange(e) {
@@ -62,7 +105,7 @@ class SummaryReview extends React.Component {
   renderSelect() {
     function renderOption(opt, index) {
       return (
-        <option value={ opt.email }>{ opt.name }</option>
+        <option value={ opt.name }>{ opt.name }</option>
       )
     }
 
@@ -95,8 +138,7 @@ class SummaryReview extends React.Component {
         return (
           <div className='article-summary-check'>
             <div className='close-review' onClick={ this.activateArticle.bind(this, -1) }>X</div>
-            { article.headline }
-            <SummaryPicker articleId={ article.article_id } headline={ article.headline }/>
+            <SummaryPicker onSave={ this.saveSummary.bind(this) } articleId={ article.article_id } headline={ article.headline }/>
           </div>
         )
       }
