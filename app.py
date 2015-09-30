@@ -47,7 +47,7 @@ def create_app():
             print('No email')
             return jsonify({})
 
-        reviews = db.SummaryReview.find({
+        reviews = mongo.db.SummaryReview.find({
             'picks': {
                 '$not': {
                     '$exists': email

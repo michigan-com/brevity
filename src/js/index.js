@@ -91,10 +91,12 @@ class SummaryReview extends React.Component {
           </div>
         )
       } else if (this.state.activeArticleIndex < this.state.articles.length ){
+        let article = this.state.articles[this.state.activeArticleIndex];
         return (
           <div className='article-summary-check'>
             <div className='close-review' onClick={ this.activateArticle.bind(this, -1) }>X</div>
-            { this.state.articles[this.state.activeArticleIndex].headline }
+            { article.headline }
+            <SummaryPicker articleId={ article.article_id } headline={ article.headline }/>
           </div>
         )
       }

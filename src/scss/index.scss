@@ -15,3 +15,58 @@ $dark-blue: #0F454F;
   color: white;
   margin: 5px 0px;
 }
+
+.sentence {
+  width: 100%;
+  display: block;
+  margin-bottom: 10px;
+
+  .controls {
+    display: inline-block;
+    width: 30%;
+
+    .control {
+      display: inline-block;
+      width: 50%;
+      text-align: center;
+      color: black;
+
+      &.add {
+        & .fa:hover, & .fa.active {
+          color: green;
+        }
+      }
+
+      &.flag {
+        & .fa:hover, & .fa.active {
+          color: red;
+        }
+      }
+
+      .fa {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .content {
+    display: inline-block;
+    width: 70%;
+  }
+}
+
+.selections {
+  background-color: #eee;
+  padding: 10px;
+  margin: 10px 0px;
+
+  .summary, .flagged {
+    width: 75%;
+    margin: 20px auto;
+    display: block;
+
+    .summary-sentence, .flagged-sentence {
+      margin: 10px 0px;
+    }
+  }
+}
