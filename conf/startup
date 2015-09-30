@@ -1,0 +1,35 @@
+#!/bin/bash
+
+NAME="brevity"
+FLASKDIR=/srv/sites/brevity
+SOCKFILE=/srv/sites/brevity/run/gunicorn.sock
+USER=ebower
+GROUP=web
+NUM_WORKERS=6
+WSGI_MODULE=brevity.wsgi
+VIRTENV=/srv/virtualenvs/brevity
+
+echo "Starting $NAME"
+
+# Activate the virtual environment
+cd $VIRTENV
+source ./bin/activate
+
+# Create the run directory if it doesn't exist
+RUNDIR=$(dirname $SOCKFILE)
+test -d $RUNDIR || mkdir -p $RUNDIR
+
+export CONFIG="prod"
+
+# Start your Flask Unicorn
+# Programs meant to be run under supervisor
+#  should not daemonize themselves (do not use --daemon)
+cd $FLASKDIR
+exec gunicorn ${WSGI_MODULE}:app \
+  --name $NAME \
+  --user=$USER --group=$GROUP \
+  --workers $NUM_WORKERS \
+  --bind=unix:$SOCKFILE \
+  --log-syslog \
+  --log-syslog-prefix $NAME
+#  --error-logfile $LOGFILE
