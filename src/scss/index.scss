@@ -22,13 +22,14 @@ $z-index-messages: 1000;
     width: 10%;
     display: inline-block;
     text-align: center;
+    color: white;
 
     .flagged-article {
-      color: red;
+      background-color: red;
     }
 
     .summary-added {
-      color: green;
+      background-color: green;
     }
   }
 
@@ -52,22 +53,24 @@ $z-index-messages: 1000;
       width: 50%;
       text-align: center;
       color: black;
+      cursor: pointer;
 
       &.add {
-        & .fa:hover, & .fa.active {
-          color: green;
+        background-color: white;
+        &:hover, &.active {
+          background-color: green;
+          color: white;
         }
       }
 
       &.flag {
-        & .fa:hover, & .fa.active {
-          color: red;
+        background-color: white;
+        &:hover, &.active {
+          background-color: red;
+          color: white;
         }
       }
 
-      .fa {
-        cursor: pointer;
-      }
     }
   }
 

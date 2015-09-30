@@ -159,7 +159,7 @@ class SummaryReview extends React.Component {
         return (
           <div className='article-summary-check'>
             <div className='close-review' onClick={ this.activateArticle.bind(this, -1) }>X</div>
-            <SummaryPicker onSave={ this.saveSummary.bind(this) } article={ article } user={ user }
+            <SummaryPicker onSave={ this.saveSummary.bind(this) } article={ article } user={ this.state.user }/>
           </div>
         )
       }
