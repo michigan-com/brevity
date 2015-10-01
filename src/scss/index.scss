@@ -15,6 +15,20 @@ $z-index-tooltip: $z-index-messages - 1;
   }
 }
 
+@mixin button($color: $dark-blue) {
+  text-align: center;
+  background-color: $color;
+  color: white;
+  font-size: 20px;
+  line-height: 30px;
+  cursor: pointer;
+  border-radius: 5px;
+
+  &:hover {
+    background-color: darken($color, .7);
+  }
+}
+
 *, *:after *:before {
   box-sizing: border-box;
 }
@@ -286,15 +300,11 @@ $z-index-tooltip: $z-index-messages - 1;
 .save-summary {
   width: 30%;
   margin: 0 auto;
-  text-align: center;
-  background-color: $dark-blue;
-  color: white;
-  font-size: 20px;
-  line-height: 30px;
-  cursor: pointer;
-  border-radius: 5px;
+  @include button();
+}
 
-  &:hover {
-    background-color: darken($dark-blue, .7);
-  }
+.validate-tokens {
+  width: 30%;
+  margin: 0 auto;
+  @include button();
 }

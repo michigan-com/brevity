@@ -130,10 +130,16 @@ def create_app():
             article['invalid'] = []
         invalids = flagged_sentences
 
+        tokens_valid = False if 'tokens_valid' not in article or not article['tokens_valid'] else True
+        if flagged_sentences:
+            tokens_valid = False
+
+
         article = mongo.db.SummaryReview.update({ 'article_id': article_id }, {
             '$set': {
                 'summary': summary,
-                'invalid': invalids
+                'invalid': invalids,
+                'tokens_valid': tokens_valid
             }
         })
 
@@ -170,6 +176,13 @@ def create_app():
             raise Unprocessable('Argument tokens_valid not found')
 
         tokens_valid = True if tokens_valid.lower() == 'true' else False
+
+        article = mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
+        if 'invalid' in article and article['invalid']:
+            return jsonify({
+                'success': False,
+                'article': article
+            })
 
         mongo.db.SummaryReview.update({ 'article_id': article_id }, {
             "$set": {

@@ -84,10 +84,28 @@ class SummaryReview extends React.Component {
     }).then(res => {
       if (res.success) {
         addMessage(`Article "${article.headline}" updated`)
-        this.state.articles[this.state.activeArticleIndex] = res.article;
-        this.activateArticle(-1)
+        let articles = this.state.articles;
+        articles[this.state.activeArticleIndex] = res.article;
+
+        this.setState({ articles })
       }
     });
+  }
+
+  validateSummary(articleId, tokens_valid) {
+    let article = this.state.articles[this.state.activeArticleIndex];
+
+    xr.get(`/article/${articleId}/tokensValid/`, { tokens_valid })
+      .then(res => {
+        if (res.success) {
+          addMessage(`Article "${article.headline}" marked as ${ tokens_valid ? 'valid' : 'invalid' }`)
+          let articles = this.state.articles;
+          articles[this.state.activeArticleIndex] = res.article;
+
+          this.setState({ articles })
+        }
+      })
+
   }
 
   nameChange(e) {
@@ -185,7 +203,10 @@ class SummaryReview extends React.Component {
         return (
           <div className='article-summary-check'>
             <div className='close-review' onClick={ this.activateArticle.bind(this, -1) }>{ `< Back to articles` }</div>
-            <SummaryPicker onSave={ this.saveSummary.bind(this) } article={ article } user={ this.state.user }/>
+            <SummaryPicker onSave={ this.saveSummary.bind(this) }
+                onValidate={ this.validateSummary.bind(this) }
+                article={ article }
+                user={ this.state.user }/>
           </div>
         )
       }

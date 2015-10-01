@@ -1,8 +1,8 @@
 'use strict';
 
 import React from 'react';
-import xr from 'xr';
 import { addMessage } from './flash-messages';
+import clone from 'clone';
 
 //var tokenCache = {};
 
@@ -15,7 +15,7 @@ export default class SummaryPicker extends React.Component {
       flaggedSentences: [], // array of indexes
       articleSavePossible: false,
       annotations: false,
-      article: this.props.article
+      article: clone(this.props.article),
     }
   }
 
@@ -27,6 +27,28 @@ export default class SummaryPicker extends React.Component {
     if (nextProps.article.article_id != this.state.article.article_id) {
       this.loadTokenData(nextProps.article.sentences);
     }
+
+    let article = clone(nextProps.article);
+    this.setState({ article })
+  }
+
+  annotate = () => {
+    this.setState({ 'annotations': !this.state.annotations });
+  }
+
+  toggleValidateArticleTokens() {
+    this.validateArticleTokens(!this.state.article.tokens_valid);
+  }
+
+  validateArticleTokens(tokens_valid) {
+    let articleId = this.state.article.article_id;
+
+    if (this.state.flaggedSentences.length) {
+      addMessage('Please removed flagged sentences before validating this article');
+      return;
+    }
+
+    this.props.onValidate(articleId, tokens_valid);
   }
 
   loadTokenData(tokens) {
@@ -106,8 +128,12 @@ export default class SummaryPicker extends React.Component {
 
     let flaggedSentences = this.state.flaggedSentences
     flaggedSentences.push(index)
+
     let articleSavePossible = true;
-    this.setState({ flaggedSentences, articleSavePossible })
+    let article = this.state.article;
+    article.tokens_valid = false;
+
+    this.setState({ flaggedSentences, articleSavePossible, article })
   }
 
   removeFlagged(index) {
@@ -123,8 +149,20 @@ export default class SummaryPicker extends React.Component {
 
     if (!found) return;
 
-    let articleSavePossible = flaggedSentences.length || this.state.summarySentences.length ? true : false;
+    let articleSavePossible = true;
+
+    if (!flaggedSentences.length && (!('invalid' in this.props.article) || !this.props.article.invalid.length)) {
+      articleSavePossible = false;
+    }
     this.setState({ flaggedSentences, articleSavePossible })
+  }
+
+  renderValidateButton() {
+    return (
+      <div onClick={ this.validateArticleTokens.bind(this, true) } className='validate-tokens'>
+        Mark Sentences Valid
+      </div>
+    )
   }
 
   renderVote(user) {
@@ -230,8 +268,20 @@ export default class SummaryPicker extends React.Component {
     let summaries;
     if (this.state.flaggedSentences.length) {
       summaries = (
-        <div className='no-summaries'>
+        <div className='summary'>
+          <h2>Summary</h2>
           A flagged sentence is present, no summary will be saved.
+        </div>
+      )
+    } else if (!this.state.article.tokens_valid) {
+      summaries = (
+        <div className='summary choose-tokens'>
+          <h2>Summary</h2>
+          <div className='tokens-not-valid'>
+            <i className='fa fa-exclamation-triangle'></i>
+          </div>
+          Please validate that the sentences in this article are broken up properly.
+          { this.renderValidateButton() }
         </div>
       )
     } else {
@@ -247,7 +297,7 @@ export default class SummaryPicker extends React.Component {
     if (this.state.articleSavePossible) {
       articleSave = (
         <div className='save-button-container'>
-          <div onClick={ this.saveSummary.bind(this) }className='save-summary'>Save Summary</div>
+          <div onClick={ this.saveSummary.bind(this) } className='save-summary'>Save Summary</div>
         </div>
       )
     }
@@ -264,21 +314,6 @@ export default class SummaryPicker extends React.Component {
     )
   }
 
-  annotate = () => {
-    this.setState({ 'annotations': !this.state.annotations });
-  }
-
-  validateArticleTokens = () => {
-    let articleId = this.state.article.article_id;
-    let tokens_valid = !this.state.article.tokens_valid;
-
-    xr.get(`/article/${articleId}/tokensValid/`, { tokens_valid })
-      .then(res => {
-        if (res.success) {
-          this.setState({ article: res.article })
-        }
-      })
-  }
 
   render() {
     return (
@@ -286,7 +321,7 @@ export default class SummaryPicker extends React.Component {
         <div className='headline'>{ this.state.article.headline }</div>
         <div className='article-control'>
           <label>Show Annotations: <input type="checkbox" onClick={ this.annotate } /></label>
-          <label> Valid tokens? <input type="checkbox" onClick={ this.validateArticleTokens } checked={ this.state.article.tokens_valid ? 1 : 0 }/></label>
+          <label> All sentences valid? <input type="checkbox" onClick={ this.toggleValidateArticleTokens.bind(this) } checked={ this.state.article.tokens_valid ? 1 : 0 }/></label>
         </div>
         { this.renderSelections() }
         { this.renderSentences() }
