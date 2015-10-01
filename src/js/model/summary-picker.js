@@ -14,31 +14,32 @@ export default class SummaryPicker extends React.Component {
       summarySentences: [], // Array of indexes
       flaggedSentences: [], // array of indexes
       articleSavePossible: false,
-      annotations: false
+      annotations: false,
+      article: this.props.article
     }
   }
 
   componentWillMount() {
-    this.loadTokenData(this.props.article.sentences);
+    this.loadTokenData(this.state.article.sentences);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.article.article_id != this.props.article.article_id) {
+    if (nextProps.article.article_id != this.state.article.article_id) {
       this.loadTokenData(nextProps.article.sentences);
     }
   }
 
   loadTokenData(tokens) {
     let user = this.props.user;
-    let article = this.props.article;
+    let article = this.state.article;
     let summarySentences = []
     let flaggedSentences = [];
 
-    if ('invalid' in this.props.article) {
-      flaggedSentences = this.props.article.invalid
+    if ('invalid' in this.state.article) {
+      flaggedSentences = this.state.article.invalid
     }
-    if (!flaggedSentences.length && 'summary' in this.props.article && user in this.props.article.summary) {
-      summarySentences = this.props.article.summary[user]
+    if (!flaggedSentences.length && 'summary' in this.state.article && user in this.state.article.summary) {
+      summarySentences = this.state.article.summary[user]
     }
 
     this.setState({
@@ -61,7 +62,7 @@ export default class SummaryPicker extends React.Component {
       }
     }
 
-    this.props.onSave(this.props.articleId, summary, flagged);
+    this.props.onSave(this.state.articleId, summary, flagged);
   }
 
   addSentence(index) {
@@ -154,8 +155,8 @@ export default class SummaryPicker extends React.Component {
     let votes = [];
     let voteContent;
     if (this.state.annotations) {
-      for (let voter in this.props.article.summary) {
-        if (this.props.article.summary[voter].indexOf(index) >= 0) {
+      for (let voter in this.state.article.summary) {
+        if (this.state.article.summary[voter].indexOf(index) >= 0) {
           votes.push(this.renderVote(voter));
         }
       }
@@ -265,11 +266,26 @@ export default class SummaryPicker extends React.Component {
     this.setState({ 'annotations': !this.state.annotations });
   }
 
+  validateArticleTokens = () => {
+    let articleId = this.state.article.article_id;
+    let tokens_valid = !this.state.article.tokens_valid;
+
+    xr.get(`/article/${articleId}/tokensValid/`, { tokens_valid })
+      .then(res => {
+        if (res.success) {
+          this.setState({ article: res.article })
+        }
+      })
+  }
+
   render() {
     return (
       <div className='summary-picker'>
-        <div className='headline'>{ this.props.article.headline }</div>
-        <label>Show Annotations: <input type="checkbox" onClick={ this.annotate } /></label>
+        <div className='headline'>{ this.state.article.headline }</div>
+        <div className='article-control'>
+          <label>Show Annotations: <input type="checkbox" onClick={ this.annotate } /></label>
+          <label> Valid tokens? <input type="checkbox" onClick={ this.validateArticleTokens } checked={ this.state.article.tokens_valid ? 1 : 0 }/></label>
+        </div>
         { this.renderSelections() }
         { this.renderSentences() }
       </div>

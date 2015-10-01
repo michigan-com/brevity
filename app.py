@@ -97,6 +97,7 @@ def create_app():
         if not name:
             raise Unprocessable('Email not found')
         elif not summary_sentences:
+            B
             raise Unprocessable('Summary not found')
         elif not flagged_sentences:
             raise Unprocessable('Flagged sentences not found')
@@ -148,6 +149,33 @@ def create_app():
         })
 
         return jsonify({ 'success': True })
+
+    @app.route('/article/<int:article_id>/tokensValid/')
+    def set_tokens_valid(article_id):
+        tokens_valid = request.args.get('tokens_valid', None)
+        if tokens_valid is None:
+            raise Unprocessable('Argument tokens_valid not found')
+
+        tokens_valid = True if tokens_valid.lower() == 'true' else False
+
+        mongo.db.SummaryReview.update({ 'article_id': article_id }, {
+            "$set": {
+                "tokens_valid": tokens_valid
+            }
+        })
+
+        return dumps({
+            'success': True,
+            'article': mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
+        })
+
+    @app.route('/articles/valid-tokens/')
+    def get_articles_with_valid_tokens():
+        articles = mongo.db.SummaryReview.find({ 'tokens_valid': True })
+        return dumps({
+            'success': True,
+            'articles': articles
+        })
 
     return app
 
