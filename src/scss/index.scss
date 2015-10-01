@@ -2,6 +2,18 @@
 
 $dark-blue: #0F454F;
 $z-index-messages: 1000;
+$z-index-tooltip: $z-index-messages - 1;
+
+
+@mixin color-tooltip($color) {
+  .vote-bubble, .vote-tooltip {
+    background-color: $color;
+  }
+
+  .vote-tooltip:after {
+    border-bottom-color: $color;
+  }
+}
 
 *, *:after *:before {
   box-sizing: border-box;
@@ -102,30 +114,70 @@ $z-index-messages: 1000;
     }
 
     .vote {
-      width: 10px;
-      height: 10px;
-      margin: 5px;
-      border-radius: 5px;
+      position: relative;
       display: inline-block;
+      width: 33%;
+
+      .vote-bubble {
+        width: 15px;
+        height: 15px;
+        font-size: 10px;
+        line-height: 15px;
+        margin: 5px;
+        border-radius: 7.5px;
+        display: inline-block;
+        color: white;
+        cursor: pointer;
+      }
+
+      .vote-tooltip {
+        position: absolute;
+        color: white;
+        top: 110%;
+        left: -100%;
+        display: none;
+        width: 300%;
+        font-size: 15px;
+        line-height: 25px;
+        text-align: center;
+        z-index: $z-index-tooltip;
+        box-shadow: rgba(0, 0, 0, 0.0980392) 1px 1px 2px 0px;
+
+        &.show {
+          display: block;
+        }
+
+        &:after {
+          content: "";
+          position: absolute;
+          border-top: none;
+          bottom: 100%;
+          left: 45%;
+          border: 6px solid transparent;
+          width: 0;
+          height: 0;
+        }
+
+      }
     }
 
     .vote-Eric {
-      background-color: #ADD8C7;
+      @include color-tooltip(#AA3939);
     }
     .vote-Mike {
-      background-color: #FCFBE3;
+      @include color-tooltip(#E3740D);
     }
     .vote-Reid {
-      background-color: #FBB829;
+      @include color-tooltip(#A2C563);
     }
     .vote-Andrey {
-      background-color: #556270;
+      @include color-tooltip(#437983);
     }
     .vote-Dale {
-      background-color: #F0A8C0;
+      @include color-tooltip(#515F90);
     }
     .vote-Bot {
-      background-color: #000;
+      @include color-tooltip(#6B4E90);
     }
 
   }

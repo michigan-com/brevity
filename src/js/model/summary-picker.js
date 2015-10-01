@@ -19,12 +19,12 @@ export default class SummaryPicker extends React.Component {
   }
 
   componentWillMount() {
-    this.loadTokenizedBody()
+    this.loadTokenData(this.props.article.sentences);
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.article.article_id != this.props.article.article_id) {
-      this.loadTokenizedBody(nextProps.article.article_id)
+      this.loadTokenData(nextProps.article.sentences);
     }
   }
 
@@ -46,21 +46,6 @@ export default class SummaryPicker extends React.Component {
       summarySentences,
       flaggedSentences
     })
-  }
-
-  loadTokenizedBody(articleId) {
-    this.loadTokenData(this.props.article.sentences);
-    /*if (typeof articleId === 'undefined') articleId = this.props.article.article_id;
-    if (articleId in tokenCache) {
-      this.loadTokenData(tokenCache[articleId])
-      return;
-    }
-
-    xr.get(`/article/${articleId}`)
-      .then( res => {
-        tokenCache[articleId] = res.tokens;
-        this.loadTokenData(tokenCache[articleId])
-      })*/
   }
 
   saveSummary() {
@@ -144,7 +129,7 @@ export default class SummaryPicker extends React.Component {
   renderVote(user) {
     let classes = 'vote vote-' + user;
     return (
-      <div className={ classes } data-user={ user }></div>
+      <Vote name={ user }/>
     );
   };
 
@@ -167,12 +152,19 @@ export default class SummaryPicker extends React.Component {
     }
 
     let votes = [];
+    let voteContent;
     if (this.state.annotations) {
       for (let voter in this.props.article.summary) {
         if (this.props.article.summary[voter].indexOf(index) >= 0) {
           votes.push(this.renderVote(voter));
         }
       }
+
+      voteContent = (
+        <div className='votes'>
+          { votes }
+        </div>
+      )
     }
 
     return (
@@ -180,9 +172,7 @@ export default class SummaryPicker extends React.Component {
         <div className='controls'>
           <SentenceControl type='add' active={ addActive } onClick={ addOnClick }/>
           <SentenceControl type='flag' active={ flagActive} onClick={ flagOnClick }/>
-          <div className='votes'>
-            { votes }
-          </div>
+          { voteContent }
         </div>
         <div className='content'>{ sentence }</div>
         <hr/>
@@ -307,6 +297,35 @@ class SentenceControl extends React.Component{
     return (
       <div onClick={ this.props.onClick } className={ `control ${this.props.type} ${this.props.active ? 'active': ''}` }>
         { this.renderControl()  }
+      </div>
+    )
+  }
+}
+
+class Vote extends React.Component {
+  constructor(args) {
+    super(args)
+
+    this.state = {
+      hover: false
+    }
+
+    this.letter = this.props.name && this.props.name.length ? this.props.name[0] : '';
+  }
+
+  toggleHover(hover) {
+    this.setState({ hover })
+  }
+
+  render() {
+    return (
+      <div className={ `vote vote-${this.props.name}` }>
+        <div onMouseEnter={ this.toggleHover.bind(this, true) }
+            onMouseLeave={ this.toggleHover.bind(this, false) }
+            className='vote-bubble'>
+          { this.letter }
+        </div>
+        <div className={ `vote-tooltip ${this.state.hover ? 'show' : ''}` }>{ this.props.name }</div>
       </div>
     )
   }

@@ -23,8 +23,11 @@ class SummaryReview extends React.Component {
     }
 
     this.reviewers = [{
-      name: 'Bot',
-      email: 'me@andyourmoms.com'
+        name: 'Andrey',
+        email: ''
+    }, {
+        name: 'Bot',
+        email: 'me@andyourmoms.com'
     }, {
         name: 'Dale',
         email: 'dparry@michigan.com'
@@ -37,9 +40,6 @@ class SummaryReview extends React.Component {
     }, {
         name: 'Reid',
         email: 'rwilliams@michigan.com'
-    }, {
-      name: 'Andrey',
-      email: ''
     }]
   }
 
