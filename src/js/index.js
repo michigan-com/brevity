@@ -24,19 +24,24 @@ class SummaryReview extends React.Component {
 
     this.reviewers = [{
         name: 'Dale',
-        email: 'dparry@michigan.com'
+        email: 'dparry@michigan.com',
+        color: '#F0A8C0'
     }, {
         name: 'Eric',
-        email: 'ebower@michigan.com'
+        email: 'ebower@michigan.com',
+        color: '#ADD8C7'
     }, {
         name: 'Mike',
-        email: 'mvarano@michigan.com'
+        email: 'mvarano@michigan.com',
+        color: '#FCFBE3'
     }, {
         name: 'Reid',
-        email: 'rwilliams@michigan.com'
+        email: 'rwilliams@michigan.com',
+        color: '#FBB829'
     }, {
       name: 'Andrey',
-      email: ''
+      email: '',
+      color: '#556270'
     }]
   }
 
@@ -134,7 +139,7 @@ class SummaryReview extends React.Component {
     } else if ('updated_at' in option) {
       status = (
         <div className='sentences-updated'>
-          <i className='fa fa-gears'></i>
+          <i className='fa fa-recycle'></i>
         </div>
       )
     }
