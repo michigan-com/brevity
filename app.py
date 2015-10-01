@@ -1,15 +1,30 @@
 import os
 import json
+import datetime
 
 import requests
+from werkzeug import Response
+from bson.objectid import ObjectId
 from flask import Flask, render_template, request, jsonify, make_response
-from bson.json_util import dumps
+
 from summarizer.parser import Parser
 
 from db import db_connect, mongo
 from summary import process_article_summaries
 
 default_config = 'Dev'
+
+class MongoJsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (datetime.datetime, datetime.date)):
+            return obj.isoformat()
+        elif isinstance(obj, ObjectId):
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)
+
+def jsonify(*args, **kwargs):
+    """ jsonify with support for MongoDB ObjectId """
+    return Response(json.dumps(dict(*args, **kwargs), cls=MongoJsonEncoder), mimetype='application/json')
 
 class Unprocessable(Exception):
     def __init__(self, message='Missing request parameters', data=None):
@@ -66,8 +81,8 @@ def create_app():
 
         reviews = mongo.db.SummaryReview.find({})
 
-        return dumps({
-            'reviews': reviews
+        return jsonify({
+            'reviews': list(reviews)
         })
 
     @app.route('/article/<int:article_id>/')
@@ -115,7 +130,6 @@ def create_app():
             article['invalid'] = []
         invalids = flagged_sentences
 
-
         article = mongo.db.SummaryReview.update({ 'article_id': article_id }, {
             '$set': {
                 'summary': summary,
@@ -123,7 +137,7 @@ def create_app():
             }
         })
 
-        return dumps({
+        return jsonify({
             'success': True,
             'article': mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
         })
@@ -163,7 +177,7 @@ def create_app():
             }
         })
 
-        return dumps({
+        return jsonify({
             'success': True,
             'article': mongo.db.SummaryReview.find({ 'article_id': article_id }).limit(1)[0]
         })
@@ -171,9 +185,9 @@ def create_app():
     @app.route('/articles/valid-tokens/')
     def get_articles_with_valid_tokens():
         articles = mongo.db.SummaryReview.find({ 'tokens_valid': True })
-        return dumps({
+        return jsonify({
             'success': True,
-            'articles': articles
+            'articles': list(articles)
         })
 
     return app
