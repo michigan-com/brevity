@@ -170,12 +170,14 @@ export default class SummaryPicker extends React.Component {
 
     return (
       <div className='sentence' key={`sentence-token-${index}`}>
-        <div className='controls'>
-          <SentenceControl type='add' active={ addActive } onClick={ addOnClick }/>
-          <SentenceControl type='flag' active={ flagActive} onClick={ flagOnClick }/>
-          { voteContent }
+        <div className='sentence-container'>
+          <div className='controls'>
+            <SentenceControl type='add' active={ addActive } onClick={ addOnClick }/>
+            <SentenceControl type='flag' active={ flagActive} onClick={ flagOnClick }/>
+            { voteContent }
+          </div>
+          <div className='content'>{ sentence }</div>
         </div>
-        <div className='content'>{ sentence }</div>
         <hr/>
       </div>
     )
