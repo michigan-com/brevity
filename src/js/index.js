@@ -134,7 +134,7 @@ class SummaryReview extends React.Component {
     } else if ('updated_at' in option) {
       status = (
         <div className='sentences-updated'>
-          <i className='fa fa-gears'></i>
+          <i className='fa fa-recycle'></i>
         </div>
       )
     }
