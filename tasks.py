@@ -2,8 +2,9 @@
 from datetime import datetime
 from invoke import task
 import requests
+
+from summarizer import summarize, sanitizer, Summarizer
 from summarizer.parser import Parser
-from summarizer import summarize
 
 from app import create_app
 from db import mongo
@@ -40,6 +41,7 @@ def summary_indices(sentences, summary):
 
 def process(articles, query_db=True, update_all=False):
     parser = Parser()
+    summar = Summarizer(parser)
 
     num_added = 0
     num_updated = 0
@@ -64,8 +66,10 @@ def process(articles, query_db=True, update_all=False):
 
             body = art['body']
 
-        sentences = parser.split_sentences(body)
-        summary = summarize(article['headline'], body, count=3)
+        # sanitize step
+        body = sanitizer.remove_dateline(body)
+        sentences = parser.sentences(body)
+        summary = summarize(article['headline'], body, count=3, summarizer=summar)
         bot_indices = summary_indices(sentences, summary)
 
         if review is None:

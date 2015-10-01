@@ -97,7 +97,6 @@ def create_app():
         if not name:
             raise Unprocessable('Email not found')
         elif not summary_sentences:
-            B
             raise Unprocessable('Summary not found')
         elif not flagged_sentences:
             raise Unprocessable('Flagged sentences not found')
