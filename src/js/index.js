@@ -136,7 +136,11 @@ class SummaryReview extends React.Component {
     let user = this.state.user;
     let invalid = false;
     let summaryChosen = false;
-    let status;
+    let status = (
+      <Status className='summary-required'
+        icon={ (<i className='fa fa-times'></i> ) }
+        tooltip='You have not summarized this article yet'/>
+    )
 
     if ('invalid' in option && option.invalid.length) {
       invalid = true;
@@ -151,7 +155,7 @@ class SummaryReview extends React.Component {
             icon={ (<i className='fa fa-exclamation-triangle'></i>) }
             tooltip='This article has not yet been validated.'/>
       )
-    } else if ('summary' in option && user in option.summary) {
+    } else if ('summary' in option && user in option.summary && option.summary[user].length) {
       summaryChosen = true;
       status = (
         <Status className='summary-added'

@@ -102,6 +102,12 @@ $z-index-tooltip: $z-index-messages - 1;
       background-color: #FFC346;
       @include color-tooltip(#FFC346);
     }
+
+    &.summary-required {
+      background-color: grey;
+      @include color-tooltip(grey);
+      color: lighten(grey, 30%);
+    }
   }
 
   .headline {
