@@ -30,7 +30,15 @@ def fetch_articles():
     data = r.json()
     process(data['articles'])
 
-def process(articles, query_db=True):
+def summary_indices(sentences, summary):
+    indices = []
+    for i, sentence in enumerate(sentences):
+        if sentence in summary:
+            indices.append(i)
+
+    return indices
+
+def process(articles, query_db=True, update_all=False):
     parser = Parser()
 
     num_added = 0
@@ -57,14 +65,15 @@ def process(articles, query_db=True):
             body = art['body']
 
         sentences = parser.split_sentences(body)
-        summary = summarize(article['headline'], body)
+        summary = summarize(article['headline'], body, count=3)
+        bot_indices = summary_indices(sentences, summary)
 
         if review is None:
             mongo.db.SummaryReview.insert({
                 'article_id': article_id,
                 'headline': article_headline,
                 'sentences': sentences,
-                'bot_summary': summary,
+                'summary': { 'Bot': bot_indices },
             })
 
             num_added += 1
@@ -80,14 +89,21 @@ def process(articles, query_db=True):
                     updated = True
                     break
 
-        if updated:
+        if updated or update_all:
             review['invalid'] = []
-            review['votes'] = {}
+            review['summary'] = {
+                'Bot': bot_indices
+            }
             review['sentences'] = sentences
-            review['bot_summary'] = summary
             review['updated_at'] = datetime.utcnow()
             mongo.db.SummaryReview.update({ '_id': review['_id'] }, review)
             num_updated += 1
+        else:
+            if 'summary' in review:
+                review['summary']['Bot'] = bot_indices
+            else:
+                review['summary'] = { 'Bot': bot_indices }
+            mongo.db.SummaryReview.update({ '_id': review['_id'] }, review)
 
     print("-" * 80)
     print("Articles fetched:\n")

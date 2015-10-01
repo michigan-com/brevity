@@ -71,7 +71,7 @@ $z-index-messages: 1000;
 
     .control {
       display: inline-block;
-      width: 50%;
+      width: 33%;
       text-align: center;
       color: black;
       cursor: pointer;
@@ -93,8 +93,41 @@ $z-index-messages: 1000;
           color: white;
         }
       }
-
     }
+
+    .votes {
+      width: 33%;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .vote {
+      width: 10px;
+      height: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .vote-Eric {
+      background-color: #ADD8C7;
+    }
+    .vote-Mike {
+      background-color: #FCFBE3;
+    }
+    .vote-Reid {
+      background-color: #FBB829;
+    }
+    .vote-Andrey {
+      background-color: #556270;
+    }
+    .vote-Dale {
+      background-color: #F0A8C0;
+    }
+    .vote-Bot {
+      background-color: #000;
+    }
+
   }
 
   .content {

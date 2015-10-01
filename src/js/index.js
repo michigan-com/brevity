@@ -23,25 +23,23 @@ class SummaryReview extends React.Component {
     }
 
     this.reviewers = [{
+      name: 'Bot',
+      email: 'me@andyourmoms.com'
+    }, {
         name: 'Dale',
-        email: 'dparry@michigan.com',
-        color: '#F0A8C0'
+        email: 'dparry@michigan.com'
     }, {
         name: 'Eric',
-        email: 'ebower@michigan.com',
-        color: '#ADD8C7'
+        email: 'ebower@michigan.com'
     }, {
         name: 'Mike',
-        email: 'mvarano@michigan.com',
-        color: '#FCFBE3'
+        email: 'mvarano@michigan.com'
     }, {
         name: 'Reid',
-        email: 'rwilliams@michigan.com',
-        color: '#FBB829'
+        email: 'rwilliams@michigan.com'
     }, {
       name: 'Andrey',
-      email: '',
-      color: '#556270'
+      email: ''
     }]
   }
 

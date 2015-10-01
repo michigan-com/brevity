@@ -1,8 +1,10 @@
+'use strict';
+
 import React from 'react';
 import xr from 'xr';
 import { addMessage } from './flash-messages';
 
-var tokenCache = {};
+//var tokenCache = {};
 
 export default class SummaryPicker extends React.Component {
   constructor(args) {
@@ -11,7 +13,8 @@ export default class SummaryPicker extends React.Component {
     this.state = {
       summarySentences: [], // Array of indexes
       flaggedSentences: [], // array of indexes
-      articleSavePossible: false
+      articleSavePossible: false,
+      annotations: false
     }
   }
 
@@ -138,6 +141,13 @@ export default class SummaryPicker extends React.Component {
     this.setState({ flaggedSentences, articleSavePossible })
   }
 
+  renderVote(user) {
+    let classes = 'vote vote-' + user;
+    return (
+      <div className={ classes } data-user={ user }></div>
+    );
+  };
+
   renderSentence(sentence, index) {
     let state;
     let addActive = false;
@@ -156,11 +166,23 @@ export default class SummaryPicker extends React.Component {
       addOnClick = function() { addMessage('Sentence already flagged as invalid') }
     }
 
+    let votes = [];
+    if (this.state.annotations) {
+      for (let voter in this.props.article.summary) {
+        if (this.props.article.summary[voter].indexOf(index) >= 0) {
+          votes.push(this.renderVote(voter));
+        }
+      }
+    }
+
     return (
       <div className='sentence' key={`sentence-token-${index}`}>
         <div className='controls'>
           <SentenceControl type='add' active={ addActive } onClick={ addOnClick }/>
           <SentenceControl type='flag' active={ flagActive} onClick={ flagOnClick }/>
+          <div className='votes'>
+            { votes }
+          </div>
         </div>
         <div className='content'>{ sentence }</div>
         <hr/>
@@ -249,11 +271,15 @@ export default class SummaryPicker extends React.Component {
     )
   }
 
-  render() {
+  annotate = () => {
+    this.setState({ 'annotations': !this.state.annotations });
+  }
 
+  render() {
     return (
       <div className='summary-picker'>
         <div className='headline'>{ this.props.article.headline }</div>
+        <label>Show Annotations: <input type="checkbox" onClick={ this.annotate } /></label>
         { this.renderSelections() }
         { this.renderSentences() }
       </div>
