@@ -72,7 +72,7 @@ def process(articles, query_db=True):
 
         # remove all votes and flags if new sentences dont match old ones
         updated = False
-        if len(review['sentences']) != len(sentences):
+        if 'sentences' not in review or len(review['sentences']) != len(sentences):
             updated = True
         else:
             for cur_sentence, new_sentence in zip(review['sentences'], sentences):
@@ -81,7 +81,7 @@ def process(articles, query_db=True):
                     break
 
         if updated:
-            review['invalids'] = []
+            review['invalid'] = []
             review['votes'] = {}
             review['sentences'] = sentences
             review['bot_summary'] = summary
