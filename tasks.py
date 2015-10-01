@@ -100,6 +100,7 @@ def process(articles, query_db=True, update_all=False):
             }
             review['sentences'] = sentences
             review['updated_at'] = datetime.utcnow()
+            review['tokens_valid'] = False
             mongo.db.SummaryReview.update({ '_id': review['_id'] }, review)
             num_updated += 1
         else:

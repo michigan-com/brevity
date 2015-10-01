@@ -141,27 +141,28 @@ class SummaryReview extends React.Component {
     if ('invalid' in option && option.invalid.length) {
       invalid = true;
       status = (
-        <div className='flagged-article'>
-          <i className='fa fa-flag'></i>
-        </div>
+        <Status className='flagged-article'
+            icon={ (<i className='fa fa-flag'></i>) }
+            tooltip='Article contains invalid sentences'/>
+      )
+    } else if (!('tokens_valid' in option) || !option.tokens_valid) {
+      status = (
+        <Status className='invalid-tokens'
+            icon={ (<i className='fa fa-exclamation-triangle'></i>) }
+            tooltip='This article has not yet been validated.'/>
       )
     } else if ('summary' in option && user in option.summary) {
       summaryChosen = true;
       status = (
-        <div className='summary-added'>
-          <i className='fa fa-check'></i>
-        </div>
-      )
-    } else if ('updated_at' in option) {
-      status = (
-        <div className='sentences-updated'>
-          <i className='fa fa-recycle'></i>
-        </div>
+        <Status className='summary-added'
+            icon={ (<i className='fa fa-check'></i>) }
+            tooltip='You have chosen a summary for this article'/>
       )
     }
+
     return (
       <div className='article-option' onClick={ this.activateArticle.bind(this, index) }>
-        <div className='status'>{ status }</div>
+        { status }
         <div className='headline'>{ option.headline }</div>
       </div>
     )
@@ -211,6 +212,36 @@ class SummaryReview extends React.Component {
         )
       }
     }
+  }
+}
+
+class Status extends React.Component {
+  constructor(args) {
+    super(args)
+
+    this.state = {
+      showTooltip: false
+    }
+  }
+
+  toggleTooltip(showTooltip) {
+    this.setState({ showTooltip })
+  }
+
+  render() {
+    let className = 'status';
+    if (this.props.className) className += ` ${this.props.className}`;
+
+    return (
+      <div className={ className }
+          onMouseEnter={ this.toggleTooltip.bind(this, true) }
+          onMouseLeave={ this.toggleTooltip.bind(this, false) }>
+        { this.props.icon }
+        <div className={ `tooltip ${this.state.showTooltip ? 'show' : '' }` }>
+          { this.props.tooltip }
+        </div>
+      </div>
+    )
   }
 }
 

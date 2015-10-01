@@ -6,12 +6,43 @@ $z-index-tooltip: $z-index-messages - 1;
 
 
 @mixin color-tooltip($color) {
-  .vote-bubble, .vote-tooltip {
+  .tooltip {
+    position: absolute;
+    color: white;
+    top: 110%;
+    left: -100%;
+    display: none;
+    width: 300%;
+    font-size: 15px;
+    line-height: 25px;
+    text-align: center;
+    z-index: $z-index-tooltip;
+    box-shadow: 0 0 .3em black;
     background-color: $color;
+    border: 1px solid white;
+
+    &.show {
+      display: block;
+    }
+
+    &:after {
+      content: "";
+      position: absolute;
+      border-top: none;
+      bottom: 100%;
+      left: 45%;
+      border: 6px solid transparent;
+      width: 0;
+      height: 0;
+      border-bottom-color: $color;
+    }
   }
 
-  .vote-tooltip:after {
-    border-bottom-color: $color;
+}
+
+@mixin color-vote($color) {
+  .vote-bubble {
+    background-color: $color;
   }
 }
 
@@ -55,17 +86,21 @@ $z-index-tooltip: $z-index-messages - 1;
     display: inline-block;
     text-align: center;
     color: white;
+    position: relative;
 
-    .flagged-article {
+    &.flagged-article {
       background-color: red;
+      @include color-tooltip(red);
     }
 
-    .summary-added {
+    &.summary-added {
       background-color: green;
+      @include color-tooltip(green);
     }
 
-    .sentences-updated {
+    &.invalid-tokens {
       background-color: #FFC346;
+      @include color-tooltip(#FFC346);
     }
   }
 
@@ -155,54 +190,31 @@ $z-index-tooltip: $z-index-messages - 1;
         cursor: pointer;
       }
 
-      .vote-tooltip {
-        position: absolute;
-        color: white;
-        top: 110%;
-        left: -100%;
-        display: none;
-        width: 300%;
-        font-size: 15px;
-        line-height: 25px;
-        text-align: center;
-        z-index: $z-index-tooltip;
-        box-shadow: rgba(0, 0, 0, 0.0980392) 1px 1px 2px 0px;
-
-        &.show {
-          display: block;
-        }
-
-        &:after {
-          content: "";
-          position: absolute;
-          border-top: none;
-          bottom: 100%;
-          left: 45%;
-          border: 6px solid transparent;
-          width: 0;
-          height: 0;
-        }
-
-      }
     }
 
     .vote-Eric {
       @include color-tooltip(#AA3939);
+      @include color-vote(#AA3939);
     }
     .vote-Mike {
       @include color-tooltip(#E3740D);
+      @include color-vote(#E3740D);
     }
     .vote-Reid {
       @include color-tooltip(#A2C563);
+      @include color-vote(#A2C563);
     }
     .vote-Andrey {
       @include color-tooltip(#437983);
+      @include color-vote(#437983);
     }
     .vote-Dale {
       @include color-tooltip(#515F90);
+      @include color-vote(#515F90);
     }
     .vote-Bot {
       @include color-tooltip(#6B4E90);
+      @include color-vote(#6B4E90);
     }
 
   }
@@ -308,3 +320,4 @@ $z-index-tooltip: $z-index-messages - 1;
   margin: 0 auto;
   @include button();
 }
+

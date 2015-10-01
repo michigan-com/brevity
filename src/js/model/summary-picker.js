@@ -378,7 +378,7 @@ class Vote extends React.Component {
             className='vote-bubble'>
           { this.letter }
         </div>
-        <div className={ `vote-tooltip ${this.state.hover ? 'show' : ''}` }>{ this.props.name }</div>
+        <div className={ `vote-tooltip tooltip ${this.state.hover ? 'show' : ''}` }>{ this.props.name }</div>
       </div>
     )
   }
