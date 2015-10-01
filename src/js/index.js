@@ -1,3 +1,5 @@
+'use strict';
+
 import url from 'url';
 
 import React from 'react';
@@ -127,6 +129,12 @@ class SummaryReview extends React.Component {
       status = (
         <div className='summary-added'>
           <i className='fa fa-check'></i>
+        </div>
+      )
+    } else if ('updated_at' in option) {
+      status = (
+        <div className='sentences-updated'>
+          <i className='fa fa-gears'></i>
         </div>
       )
     }

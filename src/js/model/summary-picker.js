@@ -9,8 +9,6 @@ export default class SummaryPicker extends React.Component {
     super(args)
 
     this.state = {
-      summaryLoaded: false,
-      tokens: [],
       summarySentences: [], // Array of indexes
       flaggedSentences: [], // array of indexes
       articleSavePossible: false
@@ -48,7 +46,8 @@ export default class SummaryPicker extends React.Component {
   }
 
   loadTokenizedBody(articleId) {
-    if (typeof articleId === 'undefined') articleId = this.props.article.article_id;
+    this.loadTokenData(this.props.article.sentences);
+    /*if (typeof articleId === 'undefined') articleId = this.props.article.article_id;
     if (articleId in tokenCache) {
       this.loadTokenData(tokenCache[articleId])
       return;
@@ -58,7 +57,7 @@ export default class SummaryPicker extends React.Component {
       .then( res => {
         tokenCache[articleId] = res.tokens;
         this.loadTokenData(tokenCache[articleId])
-      })
+      })*/
   }
 
   saveSummary() {

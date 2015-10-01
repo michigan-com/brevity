@@ -59,7 +59,7 @@ def create_app():
 
     @app.route('/get-reviews/')
     def get_reviews():
-        name = request.args.get('name', None)
+        name = request.args.get('name')
         if not name:
             print('No email')
             return jsonify({})
@@ -91,9 +91,9 @@ def create_app():
 
     @app.route('/article/<int:article_id>/summary/', methods=['GET', 'POST'])
     def add_summary(article_id):
-        name = request.values.get('name', None)
-        summary_sentences = request.values.get('summary', None)
-        flagged_sentences = request.values.get('flagged_sentences', None)
+        name = request.values.get('name')
+        summary_sentences = request.values.get('summary')
+        flagged_sentences = request.values.get('flagged_sentences')
         if not name:
             raise Unprocessable('Email not found')
         elif not summary_sentences:
@@ -130,11 +130,11 @@ def create_app():
 
     @app.route('/article/<int:article_id>/vote/')
     def vote():
-        votes = request.values.get('votes', None)
+        votes = request.values.get('votes')
         if not votes:
             raise Unprocessable('"votes" not found')
 
-        user = request.values.get('user', None)
+        user = request.values.get('user')
         if not user:
             raise Unauthorized()
 
