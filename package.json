@@ -1,6 +1,6 @@
 {
   "name": "brevity",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Summarizer for Gannett News articles",
   "main": "gulpfile.js",
   "scripts": {
