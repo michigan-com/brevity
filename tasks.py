@@ -3,7 +3,7 @@ from datetime import datetime
 from invoke import task
 import requests
 
-from summarizer import summarize, sanitizer, Summarizer
+from summarizer import summarize, sanitize, Summarizer
 from summarizer.parser import Parser
 
 from app import create_app
@@ -67,7 +67,7 @@ def process(articles, query_db=True, update_all=False):
             body = art['body']
 
         # sanitize step
-        body = sanitizer.remove_dateline(body)
+        body = sanitizer(body)
         sentences = parser.sentences(body)
         summary = summarize(article['headline'], body, count=3, summarizer=summar)
         bot_indices = summary_indices(sentences, summary)
