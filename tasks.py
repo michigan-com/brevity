@@ -67,7 +67,7 @@ def process(articles, query_db=True, update_all=False):
             body = art['body']
 
         # sanitize step
-        body = sanitizer(body)
+        body = sanitize(body)
         sentences = parser.sentences(body)
         summary = summarize(article['headline'], body, count=3, summarizer=summar)
         bot_indices = summary_indices(sentences, summary)
