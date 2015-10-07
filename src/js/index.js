@@ -7,8 +7,8 @@ import xr from 'xr';
 
 require('historyjs/scripts/bundled/html4+html5/native.history.js');
 
-import SummaryPicker from './model/summary-picker';
-import { addMessage } from './model/flash-messages';
+import SummaryPicker from './obj/summary-picker';
+import { addMessage } from './obj/flash-messages';
 
 // Name dropdown
 class SummaryReview extends React.Component {
