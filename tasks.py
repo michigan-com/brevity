@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+import random
+
 from invoke import task
 import requests
-
 from summarizer import summarize, sanitizer, Summarizer
-from summarizer.parser import Parser
 
 from app import create_app
 from db import mongo
@@ -25,6 +25,33 @@ def reprocess():
     articles = mongo.db.SummaryReview.find({})
     process(articles, False)
 
+@task
+def tokenize_article(articleid=None):
+    if articleid is not None:
+        articles = mongo.db.Article.find({'article_id': int(articleid)})
+    else:
+        print('grabbing random article...')
+        articles = mongo.db.Article.find({'body': { '$ne': '' }})
+
+    if not articles.count():
+        print('Article id {} not found'.format(articleid) if articleid is not None else 'No articles fonud')
+        return
+
+    index = random.randint(0, articles.count() - 1)
+    article = articles[index]
+
+    from spacyparser import SpacyParser
+    parser = SpacyParser()
+    sentences = parser.sentences(article['body'])
+
+    print('Processing with {}'.format(parser.__class__.__name__))
+    print('Sentences for Article {}'.format(article['article_id']))
+    print('-' * 80)
+    for s in sentences:
+        print(s)
+        print('-' * 80)
+
+
 def fetch_articles():
     r = requests.get('https://api.michigan.com/v1/news/?limit=100')
     r.raise_for_status()
@@ -40,7 +67,9 @@ def summary_indices(sentences, summary):
     return indices
 
 def process(articles, query_db=True, update_all=False):
-    parser = Parser()
+    from spacyparser import SpacyParser
+
+    parser = SpacyParser()
     summar = Summarizer(parser)
 
     num_added = 0
@@ -115,4 +144,5 @@ def process(articles, query_db=True, update_all=False):
     print("\tNumber added: {}".format(num_added))
     print("\tNumber updated: {}".format(num_updated))
     print("\tNumber invalid body: {}".format(num_invalid_body))
+
 

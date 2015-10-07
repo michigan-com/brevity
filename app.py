@@ -7,8 +7,6 @@ from werkzeug import Response
 from bson.objectid import ObjectId
 from flask import Flask, render_template, request, jsonify, make_response
 
-from summarizer.parser import Parser
-
 from db import db_connect, mongo
 from summary import process_article_summaries
 
@@ -83,20 +81,6 @@ def create_app():
 
         return jsonify({
             'reviews': list(reviews)
-        })
-
-    @app.route('/article/<int:article_id>/')
-    def article(article_id):
-        req = requests.get(''.join(['https://api.michigan.com/v1/article/', str(article_id)]))
-        req.raise_for_status()
-
-        article = req.json()
-        parser = Parser()
-        tokens = parser.split_sentences(article['body'])
-
-        return jsonify({
-            'article': article,
-            'tokens': tokens
         })
 
     @app.route('/newsfetch-summarize/')
