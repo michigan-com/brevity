@@ -2,8 +2,7 @@
 import sys
 
 from pymongo import MongoClient
-from summarizer import summarize
-from summarizer import sanitizer
+from summarizer import summarize, sanitize
 
 class ArgumentError(Exception):
     pass
@@ -32,7 +31,7 @@ def process_article_summaries(db, override=False):
             skipped += 1
             continue
 
-        body = sanitizer.remove_dateline(article['body'])
+        body = sanitize(article['body'])
         summary = summarize(article['headline'], body)
         col.update({ '_id': article['_id'] }, { '$set': { 'summary': summary } })
         summarized += 1
