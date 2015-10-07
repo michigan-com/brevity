@@ -78,6 +78,7 @@ def process(articles, query_db=True, update_all=False):
     for article in articles:
         article_id = article['article_id']
         article_headline = article['headline']
+        article_url = article['url']
         body = article.get('body', None)
         review = article
 
@@ -105,6 +106,7 @@ def process(articles, query_db=True, update_all=False):
             mongo.db.SummaryReview.insert({
                 'article_id': article_id,
                 'headline': article_headline,
+                'url': article_url,
                 'sentences': sentences,
                 'summary': { 'Bot': bot_indices },
             })

@@ -318,7 +318,7 @@ export default class SummaryPicker extends React.Component {
   render() {
     return (
       <div className='summary-picker'>
-        <div className='headline'>{ this.state.article.headline }</div>
+        <div className='headline'><a href={ this.state.article.url } target='_blank'>{ this.state.article.headline }</a></div>
         <div className='article-control'>
           <label>Show Annotations: <input type="checkbox" onClick={ this.annotate } /></label>
           <label> All sentences valid? <input type="checkbox" onClick={ this.toggleValidateArticleTokens.bind(this) } checked={ this.state.article.tokens_valid ? 1 : 0 }/></label>
