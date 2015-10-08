@@ -14,7 +14,7 @@ cd $APP_DIR
 
 printer "Grabbing latest source code from MASTER ..."
 git stash
-git pull origin master
+git pull origin live
 
 printer "Installing python packages ..."
 source $ENV_DIR/bin/activate
