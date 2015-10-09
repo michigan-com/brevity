@@ -7,21 +7,22 @@ import clone from 'clone';
 //var tokenCache = {};
 
 export default class SummaryPicker extends React.Component {
-  constructor(args) {
-    super(args)
+  state = {
+    tokens: [],
+    summarySentences: [], // Array of indexes
+    flaggedSentences: [], // array of indexes
+    articleSavePossible: false,
+    annotations: false,
+    article: clone(this.props.article),
+  };
 
-    this.state = {
-      summarySentences: [], // Array of indexes
-      flaggedSentences: [], // array of indexes
-      articleSavePossible: false,
-      annotations: false,
-      article: clone(this.props.article),
-    }
-  }
+  constructor(props) {
+    super(props);
+  };
 
   componentWillMount() {
     this.loadTokenData(this.state.article.sentences);
-  }
+  };
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.article.article_id != this.state.article.article_id) {
@@ -29,16 +30,16 @@ export default class SummaryPicker extends React.Component {
     }
 
     let article = clone(nextProps.article);
-    this.setState({ article })
-  }
+    this.setState({ article });
+  };
 
   annotate = () => {
     this.setState({ 'annotations': !this.state.annotations });
-  }
+  };
 
-  toggleValidateArticleTokens() {
+  toggleValidateArticleTokens = () => {
     this.validateArticleTokens(!this.state.article.tokens_valid);
-  }
+  };
 
   validateArticleTokens(tokens_valid) {
     let articleId = this.state.article.article_id;
@@ -49,43 +50,45 @@ export default class SummaryPicker extends React.Component {
     }
 
     this.props.onValidate(articleId, tokens_valid);
-  }
+  };
 
   loadTokenData(tokens) {
+    console.log(tokens);
     let user = this.props.user;
     let article = this.state.article;
-    let summarySentences = []
+    let summarySentences = [];
     let flaggedSentences = [];
 
     if ('invalid' in this.state.article) {
-      flaggedSentences = this.state.article.invalid
+      flaggedSentences = this.state.article.invalid;
     }
+
     if (!flaggedSentences.length && 'summary' in this.state.article && user in this.state.article.summary) {
-      summarySentences = this.state.article.summary[user]
+      summarySentences = this.state.article.summary[user];
     }
 
     this.setState({
       tokens,
       summarySentences,
       flaggedSentences
-    })
-  }
+    });
+  };
 
-  saveSummary() {
+  saveSummary = () => {
     let summary = [];
     let flagged = [];
     if (this.state.flaggedSentences.length) {
       for (var index of this.state.flaggedSentences) {
-        flagged.push(index)
+        flagged.push(index);
       }
     } else {
       for (var index of this.state.summarySentences) {
-        summary.push(index)
+        summary.push(index);
       }
     }
 
     this.props.onSave(this.state.articleId, summary, flagged);
-  }
+  };
 
   addSentence(index) {
     if (this.state.summarySentences.length == 3) {
@@ -93,19 +96,19 @@ export default class SummaryPicker extends React.Component {
       return;
     } else if (index < 0 || index >= this.state.tokens.length) {
       addMessage('Invalid sentence');
-      return
+      return;
     }
 
     let summarySentences = this.state.summarySentences;
     summarySentences.push(index);
     let articleSavePossible = summarySentences.length === 3 ? true : false;
 
-    this.setState({ summarySentences, articleSavePossible })
-  }
+    this.setState({ summarySentences, articleSavePossible });
+  };
 
   removeSentence(index) {
     let found = false;
-    let summarySentences = []
+    let summarySentences = [];
     for (var sentenceIndex of this.state.summarySentences) {
       if (index === sentenceIndex) {
         found = true;
@@ -117,24 +120,24 @@ export default class SummaryPicker extends React.Component {
     if (!found) return;
 
     let articleSavePossible = summarySentences.length === 3 ? true : false;
-    this.setState({ summarySentences, articleSavePossible })
-  }
+    this.setState({ summarySentences, articleSavePossible });
+  };
 
   flagSentence(index) {
     if (index < 0 || index >= this.state.tokens.length) {
-      addMessage('Invalid sentence')
-      return
+      addMessage('Invalid sentence');
+      return;
     }
 
     let flaggedSentences = this.state.flaggedSentences
-    flaggedSentences.push(index)
+    flaggedSentences.push(index);
 
     let articleSavePossible = true;
     let article = this.state.article;
     article.tokens_valid = false;
 
-    this.setState({ flaggedSentences, articleSavePossible, article })
-  }
+    this.setState({ flaggedSentences, articleSavePossible, article });
+  };
 
   removeFlagged(index) {
     let found = false;
@@ -154,16 +157,17 @@ export default class SummaryPicker extends React.Component {
     if (!flaggedSentences.length && (!('invalid' in this.props.article) || !this.props.article.invalid.length)) {
       articleSavePossible = false;
     }
-    this.setState({ flaggedSentences, articleSavePossible })
-  }
+
+    this.setState({ flaggedSentences, articleSavePossible });
+  };
 
   renderValidateButton() {
     return (
       <div onClick={ this.validateArticleTokens.bind(this, true) } className='validate-tokens'>
         Mark Sentences Valid
       </div>
-    )
-  }
+    );
+  };
 
   renderVote(user) {
     let classes = 'vote vote-' + user;
@@ -172,7 +176,7 @@ export default class SummaryPicker extends React.Component {
     );
   };
 
-  renderSentence(sentence, index) {
+  renderSentence = (sentence, index) => {
     let state;
     let addActive = false;
     let addOnClick = this.addSentence.bind(this, index);
@@ -182,12 +186,12 @@ export default class SummaryPicker extends React.Component {
       state = 'selected';
       addActive = true;
       addOnClick = this.removeSentence.bind(this, index);
-      flagOnClick = function() { addMessage('Sentence already selected as a summary') }
+      flagOnClick = function() { addMessage('Sentence already selected as a summary') };
     } else if (this.state.flaggedSentences.indexOf(index) >= 0) {
       state = 'flagged';
       flagActive = true;
       flagOnClick = this.removeFlagged.bind(this, index);
-      addOnClick = function() { addMessage('Sentence already flagged as invalid') }
+      addOnClick = function() { addMessage('Sentence already flagged as invalid') };
     }
 
     let votes = [];
@@ -203,7 +207,7 @@ export default class SummaryPicker extends React.Component {
         <div className='votes'>
           { votes }
         </div>
-      )
+      );
     }
 
     return (
@@ -218,10 +222,10 @@ export default class SummaryPicker extends React.Component {
         </div>
         <hr/>
       </div>
-    )
-  }
+    );
+  };
 
-  renderSummarySentence(sentenceIndex, index) {
+  renderSummarySentence = (sentenceIndex, index) => {
     return (
       <div className='summary-sentence' key={ `summary-selection-${index}` }>
         <div className='remove'>
@@ -231,10 +235,10 @@ export default class SummaryPicker extends React.Component {
           { this.state.tokens[sentenceIndex] }
         </div>
       </div>
-    )
-  }
+    );
+  };
 
-  renderFlaggedSentence(sentenceIndex, index) {
+  renderFlaggedSentence = (sentenceIndex, index) => {
     return (
       <div className='flagged-sentence' key={ `flagged-selection-${index}` }>
         <div className='remove'>
@@ -244,25 +248,26 @@ export default class SummaryPicker extends React.Component {
           { this.state.tokens[sentenceIndex] }
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   renderSentences() {
-    let content = (<div className='loading-sentences'>Loading sentences...</div>)
+    let content = (<div className='loading-sentences'>Loading sentences...</div>);
+    console.log(this.state);
     if (this.state.tokens.length) {
       content = (
         <div className='content'>
-          { this.state.tokens.map(this.renderSentence.bind(this)) }
+          { this.state.tokens.map(this.renderSentence) }
         </div>
-      )
+      );
     }
 
     return (
       <div className='sentences'>
         { content }
       </div>
-    )
-  }
+    );
+  };
 
   renderSelections() {
     let summaries;
@@ -272,7 +277,7 @@ export default class SummaryPicker extends React.Component {
           <h2>Summary</h2>
           A flagged sentence is present, no summary will be saved.
         </div>
-      )
+      );
     } else if (!this.state.article.tokens_valid) {
       summaries = (
         <div className='summary choose-tokens'>
@@ -283,23 +288,23 @@ export default class SummaryPicker extends React.Component {
           Please validate that the sentences in this article are broken up properly.
           { this.renderValidateButton() }
         </div>
-      )
+      );
     } else {
       summaries = (
         <div className='summary'>
           <h2>Summary</h2>
-          { this.state.summarySentences.map(this.renderSummarySentence.bind(this)) }
+          { this.state.summarySentences.map(this.renderSummarySentence) }
         </div>
-      )
+      );
     }
 
     let articleSave;
     if (this.state.articleSavePossible) {
       articleSave = (
         <div className='save-button-container'>
-          <div onClick={ this.saveSummary.bind(this) } className='save-summary'>Save Summary</div>
+          <div onClick={ this.saveSummary } className='save-summary'>Save Summary</div>
         </div>
-      )
+      );
     }
 
     return (
@@ -307,13 +312,12 @@ export default class SummaryPicker extends React.Component {
         { summaries }
         <div className='flagged'>
           <h2>Flagged</h2>
-          { this.state.flaggedSentences.map(this.renderFlaggedSentence.bind(this)) }
+          { this.state.flaggedSentences.map(this.renderFlaggedSentence) }
         </div>
         { articleSave }
       </div>
-    )
-  }
-
+    );
+  };
 
   render() {
     return (
@@ -321,19 +325,19 @@ export default class SummaryPicker extends React.Component {
         <div className='headline'><a href={ this.state.article.url } target='_blank'>{ this.state.article.headline }</a></div>
         <div className='article-control'>
           <label>Show Annotations: <input type="checkbox" onClick={ this.annotate } /></label>
-          <label> All sentences valid? <input type="checkbox" onClick={ this.toggleValidateArticleTokens.bind(this) } checked={ this.state.article.tokens_valid ? 1 : 0 }/></label>
+          <label> All sentences valid? <input type="checkbox" onClick={ this.toggleValidateArticleTokens } checked={ this.state.article.tokens_valid ? 1 : 0 }/></label>
         </div>
         { this.renderSelections() }
         { this.renderSentences() }
       </div>
-    )
-  }
+    );
+  };
 }
 
 class SentenceControl extends React.Component{
   constructor(args) {
     super(args)
-  }
+  };
 
   renderControl() {
     if (this.props.type === 'add') {
@@ -343,32 +347,32 @@ class SentenceControl extends React.Component{
     } else if (this.props.type === 'flag'){
       return (
         <i className={ `fa fa-flag ` }></i>
-      )
+      );
     }
-  }
+  };
+
   render() {
     return (
       <div onClick={ this.props.onClick } className={ `control ${this.props.type} ${this.props.active ? 'active': ''}` }>
         { this.renderControl()  }
       </div>
-    )
-  }
+    );
+  };
 }
 
 class Vote extends React.Component {
-  constructor(args) {
-    super(args)
+  state = {
+    hover: false
+  };
 
-    this.state = {
-      hover: false
-    }
-
+  constructor(props) {
+    super(props);
     this.letter = this.props.name && this.props.name.length ? this.props.name[0] : '';
   }
 
   toggleHover(hover) {
-    this.setState({ hover })
-  }
+    this.setState({ hover });
+  };
 
   render() {
     return (
@@ -380,6 +384,6 @@ class Vote extends React.Component {
         </div>
         <div className={ `vote-tooltip tooltip ${this.state.hover ? 'show' : ''}` }>{ this.props.name }</div>
       </div>
-    )
-  }
+    );
+  };
 }

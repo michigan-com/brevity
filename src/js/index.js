@@ -12,15 +12,15 @@ import { addMessage } from './model/flash-messages';
 
 // Name dropdown
 class SummaryReview extends React.Component {
-  constructor() {
-    super()
+  state = {
+    user: '',
+    fetched: false,
+    articles: [],
+    activeArticleIndex: -1
+  };
 
-    this.state = {
-      user: '',
-      fetched: false,
-      articles: [],
-      activeArticleIndex: -1
-    }
+  constructor(props) {
+    super(props);
 
     this.reviewers = [{
         name: 'Andrey',
@@ -41,11 +41,10 @@ class SummaryReview extends React.Component {
         name: 'Reid',
         email: 'rwilliams@michigan.com'
     }]
-  }
+  };
 
   getSummaries(name) {
-    xr.get('/get-reviews/', { name })
-    .then( res => {
+    xr.get('/get-reviews/', { name }).then( res => {
       let activeArticleIndex = -1;
       if (this.props.articleId) {
         for (let i = 0; i < res.reviews.length; i++) {
@@ -60,9 +59,9 @@ class SummaryReview extends React.Component {
       this.setState({
         articles: res.reviews,
         activeArticleIndex
-      })
-    })
-  }
+      });
+    });
+  };
 
   /**
    * Save the summary for this user
@@ -73,7 +72,7 @@ class SummaryReview extends React.Component {
    * @param {Array[String]} flagged - Array of flagged sentences. If length > 0, @param summary will not be uploaded
    *
    */
-  saveSummary(articleId, summary, flagged_sentences) {
+  saveSummary = (articleId, summary, flagged_sentences) => {
     let article = this.state.articles[this.state.activeArticleIndex];
     let name = this.state.user;
 
@@ -87,34 +86,29 @@ class SummaryReview extends React.Component {
         let articles = this.state.articles;
         articles[this.state.activeArticleIndex] = res.article;
 
-        this.setState({ articles })
+        this.setState({ articles });
       }
     });
-  }
+  };
 
-  validateSummary(articleId, tokens_valid) {
+  validateSummary = (articleId, tokens_valid) => {
     let article = this.state.articles[this.state.activeArticleIndex];
 
-    xr.get(`/article/${articleId}/tokensValid/`, { tokens_valid })
-      .then(res => {
-        if (res.success) {
-          addMessage(`Article "${article.headline}" marked as ${ tokens_valid ? 'valid' : 'invalid' }`)
-          let articles = this.state.articles;
-          articles[this.state.activeArticleIndex] = res.article;
+    xr.get(`/article/${articleId}/tokensValid/`, { tokens_valid }).then(res => {
+      if (res.success) {
+        addMessage(`Article "${article.headline}" marked as ${ tokens_valid ? 'valid' : 'invalid' }`)
+        let articles = this.state.articles;
+        articles[this.state.activeArticleIndex] = res.article;
 
-          this.setState({ articles })
-        }
-      })
-
-  }
-
-  nameChange(e) {
-    this.setState({
-      user: e.target.value
+        this.setState({ articles });
+      }
     });
+  };
 
-    this.getSummaries(e.target.value)
-  }
+  nameChange = (e) => {
+    this.setState({ user: e.target.value });
+    this.getSummaries(e.target.value);
+  };
 
   activateArticle(index) {
     if (index === -1) {
@@ -127,12 +121,11 @@ class SummaryReview extends React.Component {
       let articleId = this.state.articles[index].article_id;
       History.pushState({ articleId }, `Article ${articleId}`, `?articleId=${articleId}`);
     }
-    this.setState({
-      activeArticleIndex: index
-    })
-  }
 
-  renderArticleHeadline(option, index) {
+    this.setState({ activeArticleIndex: index });
+  };
+
+  renderArticleHeadline = (option, index) => {
     let user = this.state.user;
     let invalid = false;
     let summaryChosen = false;
@@ -140,7 +133,7 @@ class SummaryReview extends React.Component {
       <Status className='summary-required'
         icon={ (<i className='fa fa-times'></i> ) }
         tooltip='You have not summarized this article yet'/>
-    )
+    );
 
     if ('invalid' in option && option.invalid.length) {
       invalid = true;
@@ -148,20 +141,20 @@ class SummaryReview extends React.Component {
         <Status className='flagged-article'
             icon={ (<i className='fa fa-flag'></i>) }
             tooltip='Article contains invalid sentences'/>
-      )
+      );
     } else if (!('tokens_valid' in option) || !option.tokens_valid) {
       status = (
         <Status className='invalid-tokens'
             icon={ (<i className='fa fa-exclamation-triangle'></i>) }
             tooltip='This article has not yet been validated.'/>
-      )
+      );
     } else if ('summary' in option && user in option.summary && option.summary[user].length) {
       summaryChosen = true;
       status = (
         <Status className='summary-added'
             icon={ (<i className='fa fa-check'></i>) }
             tooltip='You have chosen a summary for this article'/>
-      )
+      );
     }
 
     return (
@@ -169,29 +162,29 @@ class SummaryReview extends React.Component {
         { status }
         <div className='headline'>{ option.headline }</div>
       </div>
-    )
+    );
   }
+
+  renderOption = (opt, index) => {
+    return (
+      <option value={ opt.name }>{ opt.name }</option>
+    );
+  };
 
   renderSelect() {
-    function renderOption(opt, index) {
-      return (
-        <option value={ opt.name }>{ opt.name }</option>
-      )
-    }
-
     return (
       <div className='select' id='user-select'>
-        <select onChange={ this.nameChange.bind(this) } value={ this.state.user }>
+        <select onChange={ this.nameChange } value={ this.state.user }>
           <option value=''>Choose your name...</option>
-          { this.reviewers.map(renderOption.bind(this)) }
+          { this.reviewers.map(this.renderOption) }
         </select>
       </div>
-    )
-  }
+    );
+  };
 
   render() {
     if (this.state.user == '') {
-      return this.renderSelect()
+      return this.renderSelect();
     } else {
       if (this.state.activeArticleIndex == -1) {
         return (
@@ -199,38 +192,38 @@ class SummaryReview extends React.Component {
             { this.renderSelect() }
             <div>Hey { this.state.user }</div>
             <div className='article-options'>
-              { this.state.articles.map(this.renderArticleHeadline.bind(this)) }
+              { this.state.articles.map(this.renderArticleHeadline) }
             </div>
           </div>
-        )
+        );
       } else if (this.state.activeArticleIndex < this.state.articles.length ){
         let article = this.state.articles[this.state.activeArticleIndex];
         return (
           <div className='article-summary-check'>
             <div className='close-review' onClick={ this.activateArticle.bind(this, -1) }>{ `< Back to articles` }</div>
-            <SummaryPicker onSave={ this.saveSummary.bind(this) }
-                onValidate={ this.validateSummary.bind(this) }
+            <SummaryPicker onSave={ this.saveSummary }
+                onValidate={ this.validateSummary }
                 article={ article }
                 user={ this.state.user }/>
           </div>
-        )
+        );
       }
     }
-  }
+  };
 }
 
 class Status extends React.Component {
-  constructor(args) {
-    super(args)
+  state = {
+    showTooltip: false
+  };
 
-    this.state = {
-      showTooltip: false
-    }
+  constructor(props) {
+    super(props);
   }
 
   toggleTooltip(showTooltip) {
-    this.setState({ showTooltip })
-  }
+    this.setState({ showTooltip });
+  };
 
   render() {
     let className = 'status';
@@ -245,12 +238,12 @@ class Status extends React.Component {
           { this.props.tooltip }
         </div>
       </div>
-    )
-  }
+    );
+  };
 }
 
-let parsed = url.parse(window.location.href, true);
-let articleId;
+var parsed = url.parse(window.location.href, true);
+var articleId;
 if (parsed.query && 'articleId' in parsed.query && !isNaN(parsed.query.articleId)) {
   articleId = parseInt(parsed.query.articleId);
 }
@@ -258,4 +251,4 @@ if (parsed.query && 'articleId' in parsed.query && !isNaN(parsed.query.articleId
 React.render(
   <SummaryReview articleId={ articleId }/>,
   document.getElementById('summary-review')
-)
+);
