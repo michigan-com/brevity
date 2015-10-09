@@ -36,6 +36,7 @@ function getArticles(name='Eric') {
 
 class UserList extends React.Component {
   static defaultProps = {
+    user: '',
     reviewers: [{
         name: 'Andrey',
         email: ''
@@ -68,7 +69,7 @@ class UserList extends React.Component {
   render() {
     return (
       <div className='select' id='user-select'>
-        <select>
+        <select value={ this.props.user } onChange={ this.props.onChange }>
           <option value=''>Choose your name...</option>
           { this.props.reviewers.map(this.renderOption) }
         </select>
@@ -144,21 +145,26 @@ class ArticleList extends React.Component {
     super(props);
   };
 
+  changeUser = (e) => {
+    this.setState({ user: e.target.value });
+  };
+
   render() {
-    let articles = this.props.articles.map(function(article, index) {
+    let articles = this.props.articles.map((article, index) => {
       return (
         <Article key={ article._id }
           id={ article._id }
           headline={ article.headline }
           sentences={ article.sentences }
           summary={ article.summary }
-          url={ article.url } />
+          url={ article.url }
+          user={ this.state.user } />
       );
     });
 
     return (
       <div>
-        <UserList />
+        <UserList user={ this.state.user } onChange={ this.changeUser } />
         <div className='article-options'>
           { articles }
         </div>
