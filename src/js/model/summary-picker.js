@@ -53,7 +53,6 @@ export default class SummaryPicker extends React.Component {
   };
 
   loadTokenData(tokens) {
-    console.log(tokens);
     let user = this.props.user;
     let article = this.state.article;
     let summarySentences = [];
@@ -253,7 +252,6 @@ export default class SummaryPicker extends React.Component {
 
   renderSentences() {
     let content = (<div className='loading-sentences'>Loading sentences...</div>);
-    console.log(this.state);
     if (this.state.tokens.length) {
       content = (
         <div className='content'>

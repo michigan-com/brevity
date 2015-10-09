@@ -10,6 +10,163 @@ require('historyjs/scripts/bundled/html4+html5/native.history.js');
 import SummaryPicker from './model/summary-picker';
 import { addMessage } from './model/flash-messages';
 
+(async function() {
+  let parsed = url.parse(window.location.href, true);
+  let articleId;
+  if (parsed.query && 'articleId' in parsed.query && !isNaN(parsed.query.articleId)) {
+    articleId = parseInt(parsed.query.articleId);
+  }
+
+  let articles = [];
+  try {
+    articles = await getArticles();
+  } catch (err) {
+    console.log(err);
+  }
+
+  React.render(
+    <ArticleList articles={ articles.reviews } />,
+    document.getElementById('summary-review')
+  );
+}());
+
+function getArticles(name='Eric') {
+  return xr.get('/get-reviews/', { name });
+};
+
+class UserList extends React.Component {
+  static defaultProps = {
+    reviewers: [{
+        name: 'Andrey',
+        email: ''
+    }, {
+        name: 'Bot',
+        email: 'me@andyourmoms.com'
+    }, {
+        name: 'Dale',
+        email: 'dparry@michigan.com'
+    }, {
+        name: 'Eric',
+        email: 'ebower@michigan.com'
+    }, {
+        name: 'Mike',
+        email: 'mvarano@michigan.com'
+    }, {
+        name: 'Reid',
+        email: 'rwilliams@michigan.com'
+    }]
+  };
+
+  constructor(props) { super(props); };
+
+  renderOption = (opt) => {
+    return (
+      <option value={ opt.name }>{ opt.name }</option>
+    );
+  };
+
+  render() {
+    return (
+      <div className='select' id='user-select'>
+        <select>
+          <option value=''>Choose your name...</option>
+          { this.props.reviewers.map(this.renderOption) }
+        </select>
+      </div>
+    );
+  };
+}
+
+class Article extends React.Component {
+  state = {};
+  static defaultProps = {
+    user: '',
+    option: {}
+  };
+  constructor(props) { super(props); };
+
+  render() {
+    let user = this.props.user;
+    let invalid = false;
+    let summaryChosen = false;
+    let status = (
+      <Status key={ this.props.id }
+        className='summary-required'
+        icon={ (<i className='fa fa-times'></i> ) }
+        tooltip='You have not summarized this article yet'/>
+    );
+
+    if ('invalid' in this.props && this.props.invalid.length) {
+      invalid = true;
+      status = (
+        <Status key={ this.props.id }
+          className='flagged-article'
+          icon={ (<i className='fa fa-flag'></i>) }
+          tooltip='Article contains invalid sentences'/>
+      );
+    } else if (!('tokens_valid' in this.props) || !this.props.tokens_valid) {
+      status = (
+        <Status key={ this.props.id }
+          className='invalid-tokens'
+          icon={ (<i className='fa fa-exclamation-triangle'></i>) }
+          tooltip='This article has not yet been validated.'/>
+      );
+    } else if ('summary' in this.props && user in this.props.summary && this.props.summary[user].length) {
+      summaryChosen = true;
+      status = (
+        <Status key={ this.props.id }
+          className='summary-added'
+          icon={ (<i className='fa fa-check'></i>) }
+          tooltip='You have chosen a summary for this article'/>
+      );
+    }
+
+    return (
+      <div className='article-option'>
+        { status }
+        <div className='headline'>{ this.props.headline }</div>
+        <div className='article-summary-check hidden'>
+          <div className='close-review'>
+            { `< Back to articles` }
+          </div>
+        </div>
+      </div>
+    );
+  };
+}
+
+class ArticleList extends React.Component {
+  state = {
+    user: ''
+  };
+
+  constructor(props) {
+    super(props);
+  };
+
+  render() {
+    let articles = this.props.articles.map(function(article, index) {
+      return (
+        <Article key={ article._id }
+          id={ article._id }
+          headline={ article.headline }
+          sentences={ article.sentences }
+          summary={ article.summary }
+          url={ article.url } />
+      );
+    });
+
+    return (
+      <div>
+        <UserList />
+        <div className='article-options'>
+          { articles }
+        </div>
+      </div>
+    );
+  };
+}
+
 // Name dropdown
 class SummaryReview extends React.Component {
   state = {
@@ -242,13 +399,4 @@ class Status extends React.Component {
   };
 }
 
-var parsed = url.parse(window.location.href, true);
-var articleId;
-if (parsed.query && 'articleId' in parsed.query && !isNaN(parsed.query.articleId)) {
-  articleId = parseInt(parsed.query.articleId);
-}
-
-React.render(
-  <SummaryReview articleId={ articleId }/>,
-  document.getElementById('summary-review')
-);
+//<SummaryReview articleId={ articleId }/>,

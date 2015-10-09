@@ -4,6 +4,7 @@ $dark-blue: #0F454F;
 $z-index-messages: 1000;
 $z-index-tooltip: $z-index-messages - 1;
 
+.hidden { display: none; }
 
 @mixin color-tooltip($color) {
   .tooltip {
