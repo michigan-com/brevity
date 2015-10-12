@@ -25,7 +25,7 @@ import { addMessage } from './model/flash-messages';
   }
 
   React.render(
-    <ArticleList articles={ articles.reviews } />,
+    <Container articles={ articles.reviews } />,
     document.getElementById('summary-review')
   );
 }());
@@ -33,6 +33,33 @@ import { addMessage } from './model/flash-messages';
 function getArticles(name='Eric') {
   return xr.get('/get-reviews/', { name });
 };
+
+class Container extends React.Component {
+  static defaultProps = {
+    articles: []
+  };
+
+  state = {
+    user: ''
+  };
+
+  constructor(props) {
+    super(props);
+  };
+
+  changeUser = (e) => {
+    this.setState({ user: e.target.value });
+  };
+
+  render() {
+    return (
+      <div>
+        <UserList user={ this.state.user } onChange={ this.changeUser } />
+        <ArticleList user={ this.state.user } articles={ this.props.articles } />
+      </div>
+    );
+  };
+}
 
 class UserList extends React.Component {
   static defaultProps = {
@@ -62,7 +89,7 @@ class UserList extends React.Component {
 
   renderOption = (opt) => {
     return (
-      <option value={ opt.name }>{ opt.name }</option>
+      <option value={ opt.name } key={ opt.name }>{ opt.name }</option>
     );
   };
 
@@ -70,7 +97,7 @@ class UserList extends React.Component {
     return (
       <div className='select' id='user-select'>
         <select value={ this.props.user } onChange={ this.props.onChange }>
-          <option value=''>Choose your name...</option>
+          <option value='' key='anon'>Choose your name...</option>
           { this.props.reviewers.map(this.renderOption) }
         </select>
       </div>
@@ -78,13 +105,49 @@ class UserList extends React.Component {
   };
 }
 
+class ArticleList extends React.Component {
+  constructor(props) {
+    super(props);
+  };
+
+  render() {
+    let articles = this.props.articles.map((article, index) => {
+      return (
+        <Article key={ article._id }
+          id={ article._id }
+          headline={ article.headline }
+          sentences={ article.sentences }
+          summary={ article.summary }
+          url={ article.url }
+          invalid={ article.invalid }
+          tokens_valid={ article.tokens_valid }
+          user={ this.props.user } />
+      );
+    });
+
+    return (
+      <div className='article-options'>
+        { articles }
+      </div>
+    );
+  };
+}
+
 class Article extends React.Component {
-  state = {};
+  state = {
+    active: false
+  };
+
   static defaultProps = {
     user: '',
     option: {}
   };
+
   constructor(props) { super(props); };
+
+  togglePicker = () => {
+    this.setState({ active: !this.state.active });
+  };
 
   render() {
     let user = this.props.user;
@@ -97,7 +160,7 @@ class Article extends React.Component {
         tooltip='You have not summarized this article yet'/>
     );
 
-    if ('invalid' in this.props && this.props.invalid.length) {
+    if (this.props.invalid && this.props.invalid.length) {
       invalid = true;
       status = (
         <Status key={ this.props.id }
@@ -105,14 +168,14 @@ class Article extends React.Component {
           icon={ (<i className='fa fa-flag'></i>) }
           tooltip='Article contains invalid sentences'/>
       );
-    } else if (!('tokens_valid' in this.props) || !this.props.tokens_valid) {
+    } else if (!(this.props.tokens_valid) || !this.props.tokens_valid) {
       status = (
         <Status key={ this.props.id }
           className='invalid-tokens'
           icon={ (<i className='fa fa-exclamation-triangle'></i>) }
           tooltip='This article has not yet been validated.'/>
       );
-    } else if ('summary' in this.props && user in this.props.summary && this.props.summary[user].length) {
+    } else if (this.props.summary && user in this.props.summary && this.props.summary[user].length) {
       summaryChosen = true;
       status = (
         <Status key={ this.props.id }
@@ -122,51 +185,61 @@ class Article extends React.Component {
       );
     }
 
+    let artClass = 'article-summary-check';
+    if (!this.state.active) {
+      artClass += ' hidden';
+    }
+
     return (
-      <div className='article-option'>
+      <div className='article-option' onClick={ this.togglePicker }>
         { status }
         <div className='headline'>{ this.props.headline }</div>
-        <div className='article-summary-check hidden'>
+        <div className={ artClass }>
           <div className='close-review'>
             { `< Back to articles` }
           </div>
+          <SummaryPicker key={ this.props.id }
+            id={ this.props.id }
+            active={ this.state.active }
+            user={ this.props.user }
+            summary={ this.props.summary }
+            invalid={ this.props.invalid }
+            sentences={ this.getSentences }
+            valid_tokens={ this.props.valid_tokens }
+            headline={ this.props.headline }
+            url={ this.props.url } />
         </div>
       </div>
     );
   };
+
+  getSentences = () => { return this.props.sentences; };
 }
 
-class ArticleList extends React.Component {
+class Status extends React.Component {
   state = {
-    user: ''
+    showTooltip: false
   };
 
   constructor(props) {
     super(props);
-  };
+  }
 
-  changeUser = (e) => {
-    this.setState({ user: e.target.value });
+  toggleTooltip(showTooltip) {
+    this.setState({ showTooltip });
   };
 
   render() {
-    let articles = this.props.articles.map((article, index) => {
-      return (
-        <Article key={ article._id }
-          id={ article._id }
-          headline={ article.headline }
-          sentences={ article.sentences }
-          summary={ article.summary }
-          url={ article.url }
-          user={ this.state.user } />
-      );
-    });
+    let className = 'status';
+    if (this.props.className) className += ` ${this.props.className}`;
 
     return (
-      <div>
-        <UserList user={ this.state.user } onChange={ this.changeUser } />
-        <div className='article-options'>
-          { articles }
+      <div className={ className }
+          onMouseEnter={ this.toggleTooltip.bind(this, true) }
+          onMouseLeave={ this.toggleTooltip.bind(this, false) }>
+        { this.props.icon }
+        <div className={ `tooltip ${this.state.showTooltip ? 'show' : '' }` }>
+          { this.props.tooltip }
         </div>
       </div>
     );
@@ -372,36 +445,6 @@ class SummaryReview extends React.Component {
         );
       }
     }
-  };
-}
-
-class Status extends React.Component {
-  state = {
-    showTooltip: false
-  };
-
-  constructor(props) {
-    super(props);
-  }
-
-  toggleTooltip(showTooltip) {
-    this.setState({ showTooltip });
-  };
-
-  render() {
-    let className = 'status';
-    if (this.props.className) className += ` ${this.props.className}`;
-
-    return (
-      <div className={ className }
-          onMouseEnter={ this.toggleTooltip.bind(this, true) }
-          onMouseLeave={ this.toggleTooltip.bind(this, false) }>
-        { this.props.icon }
-        <div className={ `tooltip ${this.state.showTooltip ? 'show' : '' }` }>
-          { this.props.tooltip }
-        </div>
-      </div>
-    );
   };
 }
 

@@ -5,8 +5,176 @@ import { addMessage } from './flash-messages';
 import clone from 'clone';
 
 //var tokenCache = {};
+class SentenceControl extends React.Component{
+  constructor(args) { super(args) };
+
+  renderControl() {
+    if (this.props.type === 'add') {
+      return  (
+        <i className={ `fa fa-plus ` }></i>
+      )
+    } else if (this.props.type === 'flag'){
+      return (
+        <i className={ `fa fa-flag ` }></i>
+      );
+    }
+  };
+
+  render() {
+    return (
+      <div onClick={ this.props.onClick } className={ `control ${this.props.type} ${this.props.active ? 'active': ''}` }>
+        { this.renderControl()  }
+      </div>
+    );
+  };
+}
+
+class Vote extends React.Component {
+  state = {
+    hover: false
+  };
+
+  constructor(props) {
+    super(props);
+    this.letter = this.props.name && this.props.name.length ? this.props.name[0] : '';
+  }
+
+  toggleHover(hover) {
+    this.setState({ hover });
+  };
+
+  render() {
+    return (
+      <div className={ `vote vote-${this.props.name}` }>
+        <div onMouseEnter={ this.toggleHover.bind(this, true) }
+            onMouseLeave={ this.toggleHover.bind(this, false) }
+            className='vote-bubble'>
+          { this.letter }
+        </div>
+        <div className={ `vote-tooltip tooltip ${this.state.hover ? 'show' : ''}` }>{ this.props.name }</div>
+      </div>
+    );
+  };
+}
 
 export default class SummaryPicker extends React.Component {
+  state = {
+    annotations: false
+  };
+
+  static defaultProps = {
+    active: false
+  };
+
+  constructor(props) {
+    super(props);
+  };
+
+  loadUserSummaries() {
+    return this.props.summary[this.props.user] || [];
+  };
+
+  saveSummary = () => {
+    let summary = [];
+    let flagged = [];
+    this.props.onSave(this.props.id, summary, flagged);
+  };
+
+  toggleArticleValidated = () => {
+    if (this.props.invalid.length) {
+      addMessage('Please removed flagged sentences before validating this article');
+      return;
+    }
+
+    this.props.onValidate(this.props.id, !this.props.tokens_valid);
+  };
+
+  render() {
+    if (!this.props.active) return (<div className='summary-picker'></div>);
+
+    let propSentences = this.props.sentences();
+    let sentences = [];
+    for (let i = 0; i < propSentences.length; i++) {
+      let sentence = propSentences[i];
+      sentences.push(<Sentence key={ i } index={ i } text={ sentence } />);
+    }
+
+    return (
+      <div className='summary-picker'>
+        <div className='headline'><a href={ this.props.url } target='_blank'>{ this.props.headline }</a></div>
+        <div className='article-control'>
+          <label>Show Annotations: <input type="checkbox" onClick={ this.toggleAnnotations } /></label>
+          <label> All sentences valid? <input type="checkbox" onClick={ this.toggleArticleValidated } checked={ this.props.tokens_valid ? 1 : 0 }/></label>
+        </div>
+        <div className='save-button-container'>
+          <div onClick={ this.saveSummary } className='save-summary'>Save Summary</div>
+        </div>
+        { sentences }
+      </div>
+    );
+  };
+}
+
+class Sentence extends React.Component {
+  static defaultProps = {
+    active: 0
+  };
+
+  constructor(props) { super(props); };
+
+  render() {
+    let flagOnClick = function() { addMessage('Sentence already selected as a summary') };
+    let addOnClick = function() { addMessage('Sentence already flagged as invalid') };
+
+    /*let votes = [];
+    let voteContent;
+    if (this.props.annotations) {
+      for (let voter in this.props.summary) {
+        if (this.props.summary[voter].indexOf(this.props.index) >= 0) {
+          let classes = 'vote vote-' + voter;
+          votes.push(<Vote key={ voter } name={ voter }/>);
+        }
+      }
+
+      voteContent = (
+        <div className='votes'>
+          { votes }
+        </div>
+      );
+    }*/
+    //{ voteContent }
+    return (
+      <div className='sentence' key={`sentence-token-${this.props.index}`}>
+        <div className='sentence-container'>
+          <div className='controls'>
+            <SentenceControl type='add' active={ this.props.active == 1 ? 'active' : '' } />
+            <SentenceControl type='flag' active={ this.props.active == -1 ? 'active' : '' }  />
+          </div>
+          <div className='content'>{ this.props.text }</div>
+        </div>
+        <hr/>
+      </div>
+    );
+  };
+}
+
+/*class UserSelections extends React.Component {
+  constructor(props) { super(props); };
+  render() {
+    return (
+      <div className='selections'>
+        { summaries }
+        <div className='flagged'>
+          <h2>Flagged</h2>
+          { this.state.flaggedSentences.map(this.renderFlaggedSentence) }
+        </div>
+        { articleSave }
+      </div>
+    );
+  };
+}*/
+
+/*export default class SummaryPicker extends React.Component {
   state = {
     tokens: [],
     summarySentences: [], // Array of indexes
@@ -181,7 +349,7 @@ export default class SummaryPicker extends React.Component {
     let addOnClick = this.addSentence.bind(this, index);
     let flagActive = false;
     let flagOnClick = this.flagSentence.bind(this, index);
-    if (this.state.summarySentences.indexOf(index) >= 0) {
+    if (this.state.userSummaries.indexOf(index) >= 0) {
       state = 'selected';
       addActive = true;
       addOnClick = this.removeSentence.bind(this, index);
@@ -196,8 +364,8 @@ export default class SummaryPicker extends React.Component {
     let votes = [];
     let voteContent;
     if (this.state.annotations) {
-      for (let voter in this.state.article.summary) {
-        if (this.state.article.summary[voter].indexOf(index) >= 0) {
+      for (let voter in this.props.summary) {
+        if (this.props.summary[voter].indexOf(index) >= 0) {
           votes.push(this.renderVote(voter));
         }
       }
@@ -291,7 +459,7 @@ export default class SummaryPicker extends React.Component {
       summaries = (
         <div className='summary'>
           <h2>Summary</h2>
-          { this.state.summarySentences.map(this.renderSummarySentence) }
+          { this.state.userSummaries.map(this.renderSummarySentence) }
         </div>
       );
     }
@@ -330,58 +498,4 @@ export default class SummaryPicker extends React.Component {
       </div>
     );
   };
-}
-
-class SentenceControl extends React.Component{
-  constructor(args) {
-    super(args)
-  };
-
-  renderControl() {
-    if (this.props.type === 'add') {
-      return  (
-        <i className={ `fa fa-plus ` }></i>
-      )
-    } else if (this.props.type === 'flag'){
-      return (
-        <i className={ `fa fa-flag ` }></i>
-      );
-    }
-  };
-
-  render() {
-    return (
-      <div onClick={ this.props.onClick } className={ `control ${this.props.type} ${this.props.active ? 'active': ''}` }>
-        { this.renderControl()  }
-      </div>
-    );
-  };
-}
-
-class Vote extends React.Component {
-  state = {
-    hover: false
-  };
-
-  constructor(props) {
-    super(props);
-    this.letter = this.props.name && this.props.name.length ? this.props.name[0] : '';
-  }
-
-  toggleHover(hover) {
-    this.setState({ hover });
-  };
-
-  render() {
-    return (
-      <div className={ `vote vote-${this.props.name}` }>
-        <div onMouseEnter={ this.toggleHover.bind(this, true) }
-            onMouseLeave={ this.toggleHover.bind(this, false) }
-            className='vote-bubble'>
-          { this.letter }
-        </div>
-        <div className={ `vote-tooltip tooltip ${this.state.hover ? 'show' : ''}` }>{ this.props.name }</div>
-      </div>
-    );
-  };
-}
+}*/
