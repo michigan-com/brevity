@@ -191,11 +191,11 @@ class Article extends React.Component {
     }
 
     return (
-      <div className='article-option' onClick={ this.togglePicker }>
+      <div className='article-option'>
         { status }
-        <div className='headline'>{ this.props.headline }</div>
+        <div className='headline' onClick={ this.togglePicker }>{ this.props.headline }</div>
         <div className={ artClass }>
-          <div className='close-review'>
+          <div className='close-review' onClick={ }>
             { `< Back to articles` }
           </div>
           <SummaryPicker key={ this.props.id }

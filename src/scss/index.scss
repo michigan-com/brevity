@@ -11,9 +11,9 @@ $z-index-tooltip: $z-index-messages - 1;
 .hidden { display: none; }
 
 .article-summary-check {
-  position: fixed;
+  position: absolute;
   left: 0;
-  top: 30px;
+  top: 0;
   width: 100%;
   height: 100%;
   z-index: 1000;
@@ -141,7 +141,7 @@ $z-index-tooltip: $z-index-messages - 1;
   line-height: 30px;
   border-radius: 5px;
   cursor: pointer;
-  width: 15%;
+  width: 25%;
   text-align: center;
 }
 
