@@ -7,6 +7,7 @@ import requests
 from summarizer import summarize, sanitize, Summarizer
 
 from app import create_app
+from summary import process_article_summaries
 from db import mongo
 
 app = create_app()
@@ -15,6 +16,10 @@ app.test_request_context().push()
 @task
 def run(host='0.0.0.0', port=3000):
     app.run(host=host, port=port)
+
+@task
+def summarize(override=False):
+    process_article_summaries(mongo.db, override)
 
 @task
 def fetch_articles_task():
