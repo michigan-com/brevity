@@ -19,7 +19,7 @@ def run(host='0.0.0.0', port=3000):
 
 @task
 def summarize(override=False):
-    process_article_summaries(mongo.db, override)
+    print(process_article_summaries(mongo.db, override))
 
 @task
 def fetch_articles_task():
