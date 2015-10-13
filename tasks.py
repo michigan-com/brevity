@@ -40,8 +40,6 @@ def tokenize_article(articleid=None):
     index = random.randint(0, articles.count() - 1)
     article = articles[index]
 
-    from spacyparser import SpacyParser
-    parser = SpacyParser()
     sentences = parser.sentences(article['body'])
 
     print('Processing with {}'.format(parser.__class__.__name__))
