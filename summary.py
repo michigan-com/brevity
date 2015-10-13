@@ -19,7 +19,7 @@ def process_article_summaries(db, override=False):
     skipped = 0
     summarized = 0
     for article in articles:
-        if not override and 'summary' in article and len(article['summary']) > 0:
+        if not override and 'summary' in article and article['summary']:
             print("Already found summary for {}, skipping ...".format(article['headline']), file=sys.stderr)
             skipped += 1
             continue
