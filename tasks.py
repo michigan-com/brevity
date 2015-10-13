@@ -4,7 +4,7 @@ import random
 
 from invoke import task
 import requests
-from summarizer import summarize, sanitize, Summarizer
+from summarizer import summarize, sanitize, Summarizer, Parser
 
 from app import create_app
 from summary import process_article_summaries
@@ -18,12 +18,8 @@ def run(host='0.0.0.0', port=3000):
     app.run(host=host, port=port)
 
 @task
-def summarize(override=False):
+def summaries(override=False):
     print(process_article_summaries(mongo.db, override))
-
-@task
-def fetch_articles_task():
-    fetch_articles()
 
 @task
 def reprocess():
@@ -55,11 +51,12 @@ def tokenize_article(articleid=None):
         print('-' * 80)
 
 
-def fetch_articles():
+@task
+def fetch_articles(update_all=False):
     r = requests.get('https://api.michigan.com/v1/news/?limit=100')
     r.raise_for_status()
     data = r.json()
-    process(data['articles'])
+    process(data['articles'], update_all=update_all)
 
 def summary_indices(sentences, summary):
     indices = []
@@ -70,9 +67,7 @@ def summary_indices(sentences, summary):
     return indices
 
 def process(articles, query_db=True, update_all=False):
-    from spacyparser import SpacyParser
-
-    parser = SpacyParser()
+    parser = Parser()
     summar = Summarizer(parser)
 
     num_added = 0
