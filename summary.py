@@ -22,8 +22,17 @@ def process_article_summaries(db, override=False):
     if override:
         articles = col.find()
     else:
-        articles = col.find({ "summary": { "$size": 0 }, "body": { "$ne": "" }})
-        skipped = col.find({ "summary": { "$not": { "$size": 0 }}}).count()
+        articles = col.find({
+            "$or": [
+                { "summary": { "$size": 0 } },
+                { "summary": { "$exists": False } }
+            ],
+            "body": { "$ne": "" }
+        })
+
+        skipped = col.find({
+            "summary": { "$not": { "$size": 0 }}
+        }).count()
 
     for article in articles:
         #print("Processing {} ...".format(article['headline']))
