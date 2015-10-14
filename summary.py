@@ -15,28 +15,23 @@ def disconnect(client):
 
 def process_article_summaries(db, override=False):
     col = db.Article
-    articles = col.find()
+    articles = None
     skipped = 0
     summarized = 0
+
+    if override:
+        articles = col.find()
+    else:
+        articles = col.find({ "summary": { "$size": 0 }, "body": { "$ne": "" }})
+        skipped = col.find({ "summary": { "$not": { "$size": 0 }}}).count()
+
     for article in articles:
-        if not override and 'summary' in article and article['summary']:
-            #print("Already found summary for {}, skipping ...".format(article['headline']), file=sys.stderr)
-            skipped += 1
-            continue
-
         #print("Processing {} ...".format(article['headline']))
-
-        if 'body' not in article or article['body'] == "":
-            #print("Body not found for {}, skipping ...".format(article['headline']), file=sys.stderr)
-            skipped += 1
-            continue
-
-        body = sanitize(article['body'])
-        summary = summarize(article['headline'], body)
+        summary = summarize(article['headline'], article['body'])
         col.update({ '_id': article['_id'] }, { '$set': { 'summary': summary } })
         summarized += 1
 
-    return { 'skipped': skipped, 'summarized': summarized }
+    return { 'summarized': summarized, 'skipped': skipped }
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
