@@ -5,3 +5,7 @@ node_modules/
 static/
 .DS_Store
 conf/supervisor.conf
+
+# Ipython notebook
+.ipynb_checkpoints/
+*.ipynb

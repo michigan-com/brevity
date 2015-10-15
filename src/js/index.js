@@ -3,6 +3,7 @@
 import url from 'url';
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import xr from 'xr';
 
 require('historyjs/scripts/bundled/html4+html5/native.history.js');
@@ -165,7 +166,7 @@ class SummaryReview extends React.Component {
     }
 
     return (
-      <div className='article-option' onClick={ this.activateArticle.bind(this, index) }>
+      <div className='article-option' onClick={ this.activateArticle.bind(this, index) } key={ `article-headline-${index}`}>
         { status }
         <div className='headline'>{ option.headline }</div>
       </div>
@@ -175,7 +176,7 @@ class SummaryReview extends React.Component {
   renderSelect() {
     function renderOption(opt, index) {
       return (
-        <option value={ opt.name }>{ opt.name }</option>
+        <option value={ opt.name } key={ `user-${index}` }>{ opt.name }</option>
       )
     }
 
@@ -255,7 +256,7 @@ if (parsed.query && 'articleId' in parsed.query && !isNaN(parsed.query.articleId
   articleId = parseInt(parsed.query.articleId);
 }
 
-React.render(
+ReactDOM.render(
   <SummaryReview articleId={ articleId }/>,
   document.getElementById('summary-review')
 )

@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 class FlashMessages extends React.Component {
   constructor(args) {
@@ -48,7 +49,7 @@ class FlashMessages extends React.Component {
   }
 }
 
-let flash = React.render(
+let flash = ReactDOM.render(
   <FlashMessages/>,
   document.getElementById('messages')
 )
