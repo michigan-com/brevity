@@ -4,9 +4,10 @@ import random
 
 from invoke import task
 import requests
-from summarizer import summarize, sanitize, Summarizer
+from summarizer import summarize, sanitize, Summarizer, Parser
 
 from app import create_app
+from summary import process_article_summaries
 from db import mongo
 
 app = create_app()
@@ -17,8 +18,8 @@ def run(host='0.0.0.0', port=3000):
     app.run(host=host, port=port)
 
 @task
-def fetch_articles_task():
-    fetch_articles()
+def summaries(override=False):
+    print(process_article_summaries(mongo.db, override))
 
 @task
 def reprocess():
@@ -40,8 +41,6 @@ def tokenize_article(articleid=None):
     index = random.randint(0, articles.count() - 1)
     article = articles[index]
 
-    from spacyparser import SpacyParser
-    parser = SpacyParser()
     sentences = parser.sentences(article['body'])
 
     print('Processing with {}'.format(parser.__class__.__name__))
@@ -52,11 +51,12 @@ def tokenize_article(articleid=None):
         print('-' * 80)
 
 
-def fetch_articles():
+@task
+def fetch_articles(update_all=False):
     r = requests.get('https://api.michigan.com/v1/news/?limit=100')
     r.raise_for_status()
     data = r.json()
-    process(data['articles'])
+    process(data['articles'], update_all=update_all)
 
 def summary_indices(sentences, summary):
     indices = []
@@ -67,9 +67,7 @@ def summary_indices(sentences, summary):
     return indices
 
 def process(articles, query_db=True, update_all=False):
-    from spacyparser import SpacyParser
-
-    parser = SpacyParser()
+    parser = Parser()
     summar = Summarizer(parser)
 
     num_added = 0

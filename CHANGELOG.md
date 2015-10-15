@@ -1,5 +1,10 @@
 # Changelog
 
+0.0.5 2015-10-08
+----------------
+
+* Updated jenkins to build based on the 'live' branch and not master.
+
 0.0.4 2015-10-07
 ----------------
 
