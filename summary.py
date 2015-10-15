@@ -31,7 +31,10 @@ def process_article_summaries(db, override=False):
         })
 
         skipped = col.find({
-            "summary": { "$not": { "$size": 0 }}
+            "summary": {
+                "$not": { "$size": 0 },
+                "$exists": True
+            }
         }).count()
 
     for article in articles:
