@@ -91,7 +91,11 @@ export default class SummaryPicker extends React.Component {
     if (this.state.summarySentences.length == 3) {
       addMessage('Only 3 sentences per summary');
       return;
-    } else if (index < 0 || index >= this.state.tokens.length) {
+    } else if (this.state.flaggedSentences.length) {
+      addMessage('Cannot add a summary if there are flagged sentences');
+      return;
+    }
+    else if (index < 0 || index >= this.state.tokens.length) {
       addMessage('Invalid sentence');
       return
     }
@@ -165,10 +169,10 @@ export default class SummaryPicker extends React.Component {
     )
   }
 
-  renderVote(user) {
+  renderVote(user, index) {
     let classes = 'vote vote-' + user;
     return (
-      <Vote name={ user }/>
+      <Vote name={ user } key={ `vote-${index}` }/>
     );
   };
 
@@ -195,7 +199,7 @@ export default class SummaryPicker extends React.Component {
     if (this.state.annotations) {
       for (let voter in this.state.article.summary) {
         if (this.state.article.summary[voter].indexOf(index) >= 0) {
-          votes.push(this.renderVote(voter));
+          votes.push(this.renderVote(voter, votes.length));
         }
       }
 
@@ -320,8 +324,8 @@ export default class SummaryPicker extends React.Component {
       <div className='summary-picker'>
         <div className='headline'><a href={ this.state.article.url } target='_blank'>{ this.state.article.headline }</a></div>
         <div className='article-control'>
-          <label>Show Annotations: <input type="checkbox" onClick={ this.annotate } /></label>
-          <label> All sentences valid? <input type="checkbox" onClick={ this.toggleValidateArticleTokens.bind(this) } checked={ this.state.article.tokens_valid ? 1 : 0 }/></label>
+          <label>Show Annotations: <input type="checkbox" onChange={ this.annotate } /></label>
+          <label> All sentences valid? <input type="checkbox" onChange={ this.toggleValidateArticleTokens.bind(this) } checked={ this.state.article.tokens_valid ? 1 : 0 }/></label>
         </div>
         { this.renderSelections() }
         { this.renderSentences() }
@@ -346,6 +350,7 @@ class SentenceControl extends React.Component{
       )
     }
   }
+
   render() {
     return (
       <div onClick={ this.props.onClick } className={ `control ${this.props.type} ${this.props.active ? 'active': ''}` }>
