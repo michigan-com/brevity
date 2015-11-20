@@ -2,6 +2,7 @@
 import sys
 
 from pymongo import MongoClient
+from bson import CodecOptions
 from summarizer import summarize, sanitize
 
 class ArgumentError(Exception):
@@ -15,6 +16,10 @@ def disconnect(client):
 
 def process_article_summaries(db, override=False):
     col = db.Article
+
+    opts = CodecOptions(unicode_decode_error_handler='ignore')
+    col = col.with_options(codec_options=opts)
+
     articles = None
     skipped = 0
     summarized = 0
@@ -38,7 +43,7 @@ def process_article_summaries(db, override=False):
         }).count()
 
     for article in articles:
-        #print("Processing {} ...".format(article['headline']))
+        #print("Processing {} ...".format(article['article_id']))
         summary = summarize(article['headline'], article['body'])
         col.update({ '_id': article['_id'] }, { '$set': { 'summary': summary } })
         summarized += 1

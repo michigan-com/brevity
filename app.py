@@ -1,6 +1,7 @@
 import os
 import json
 import datetime
+import logging
 
 import requests
 from werkzeug import Response
@@ -55,6 +56,11 @@ def create_app():
 
     app = Flask(__name__)
     app.config.from_object('app.' + config)
+
+    app.logger.addHandler(logging.StreamHandler())
+    app.logger.setLevel(logging.INFO)
+
+    app.logger.info(config)
 
     db_connect(app)
 

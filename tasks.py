@@ -53,7 +53,7 @@ def tokenize_article(articleid=None):
 
 @task
 def fetch_articles(update_all=False):
-    r = requests.get('https://api.michigan.com/v1/news/?limit=100')
+    r = requests.get('https://api.michigan.com/v1/news/?limit=20')
     r.raise_for_status()
     data = r.json()
     process(data['articles'], update_all=update_all)
@@ -94,8 +94,6 @@ def process(articles, query_db=True, update_all=False):
 
             body = art['body']
 
-        # sanitize step
-        #body = sanitize(body)
         sentences = parser.sentences(body)
         summary = summarize(article['headline'], body, count=3, summarizer=summar)
         bot_indices = summary_indices(sentences, summary)
